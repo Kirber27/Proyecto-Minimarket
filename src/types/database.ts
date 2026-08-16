@@ -69,6 +69,191 @@ export type Database = {
         }
         Relationships: []
       }
+      cliente: {
+        Row: {
+          activo: boolean
+          creado_en: string
+          id: string
+          nombre: string
+          nombre_busqueda: string | null
+          nota: string | null
+          origen: string | null
+          telefono: string | null
+        }
+        Insert: {
+          activo?: boolean
+          creado_en?: string
+          id?: string
+          nombre: string
+          nombre_busqueda?: string | null
+          nota?: string | null
+          origen?: string | null
+          telefono?: string | null
+        }
+        Update: {
+          activo?: boolean
+          creado_en?: string
+          id?: string
+          nombre?: string
+          nombre_busqueda?: string | null
+          nota?: string | null
+          origen?: string | null
+          telefono?: string | null
+        }
+        Relationships: []
+      }
+      deuda_movimiento: {
+        Row: {
+          anulado: boolean
+          cliente_id: string
+          creado_en: string
+          id: number
+          metodo: Database["public"]["Enums"]["metodo_pago"] | null
+          monto_usd: number
+          nota: string | null
+          tasa_aplicada: number
+          tipo: Database["public"]["Enums"]["tipo_movimiento_deuda"]
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+          venta_id: string | null
+        }
+        Insert: {
+          anulado?: boolean
+          cliente_id: string
+          creado_en?: string
+          id?: number
+          metodo?: Database["public"]["Enums"]["metodo_pago"] | null
+          monto_usd: number
+          nota?: string | null
+          tasa_aplicada: number
+          tipo: Database["public"]["Enums"]["tipo_movimiento_deuda"]
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+          venta_id?: string | null
+        }
+        Update: {
+          anulado?: boolean
+          cliente_id?: string
+          creado_en?: string
+          id?: number
+          metodo?: Database["public"]["Enums"]["metodo_pago"] | null
+          monto_usd?: number
+          nota?: string | null
+          tasa_aplicada?: number
+          tipo?: Database["public"]["Enums"]["tipo_movimiento_deuda"]
+          unidad_negocio?: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id?: string
+          venta_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deuda_movimiento_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "cliente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deuda_movimiento_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "cliente_saldo"
+            referencedColumns: ["cliente_id"]
+          },
+          {
+            foreignKeyName: "deuda_movimiento_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deuda_movimiento_venta_id_fkey"
+            columns: ["venta_id"]
+            isOneToOne: false
+            referencedRelation: "venta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movimiento_stock: {
+        Row: {
+          cantidad: number
+          costo_unitario_usd: number | null
+          creado_en: string
+          id: number
+          motivo: Database["public"]["Enums"]["motivo_ajuste"] | null
+          nota: string | null
+          producto_id: string
+          stock_resultante: number
+          tipo: Database["public"]["Enums"]["tipo_movimiento"]
+          usuario_id: string
+          venta_id: string | null
+        }
+        Insert: {
+          cantidad: number
+          costo_unitario_usd?: number | null
+          creado_en?: string
+          id?: number
+          motivo?: Database["public"]["Enums"]["motivo_ajuste"] | null
+          nota?: string | null
+          producto_id: string
+          stock_resultante: number
+          tipo: Database["public"]["Enums"]["tipo_movimiento"]
+          usuario_id: string
+          venta_id?: string | null
+        }
+        Update: {
+          cantidad?: number
+          costo_unitario_usd?: number | null
+          creado_en?: string
+          id?: number
+          motivo?: Database["public"]["Enums"]["motivo_ajuste"] | null
+          nota?: string | null
+          producto_id?: string
+          stock_resultante?: number
+          tipo?: Database["public"]["Enums"]["tipo_movimiento"]
+          usuario_id?: string
+          venta_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimiento_stock_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimiento_stock_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto_cobertura"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimiento_stock_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto_rotacion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimiento_stock_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimiento_stock_venta_id_fkey"
+            columns: ["venta_id"]
+            isOneToOne: false
+            referencedRelation: "venta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       negocio: {
         Row: {
           activo: boolean
@@ -163,6 +348,20 @@ export type Database = {
             columns: ["producto_id"]
             isOneToOne: false
             referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "precio_historial_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto_cobertura"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "precio_historial_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto_rotacion"
             referencedColumns: ["id"]
           },
           {
@@ -277,13 +476,281 @@ export type Database = {
           },
         ]
       }
+      venta: {
+        Row: {
+          anulada: boolean
+          anulada_en: string | null
+          anulada_motivo: string | null
+          anulada_por: string | null
+          cliente_id: string | null
+          correlativo: number
+          creado_en: string
+          id: string
+          idempotencia: string | null
+          tasa_aplicada: number
+          total_usd: number
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          unidades: number
+          usuario_id: string
+        }
+        Insert: {
+          anulada?: boolean
+          anulada_en?: string | null
+          anulada_motivo?: string | null
+          anulada_por?: string | null
+          cliente_id?: string | null
+          correlativo?: never
+          creado_en?: string
+          id?: string
+          idempotencia?: string | null
+          tasa_aplicada: number
+          total_usd: number
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          unidades: number
+          usuario_id: string
+        }
+        Update: {
+          anulada?: boolean
+          anulada_en?: string | null
+          anulada_motivo?: string | null
+          anulada_por?: string | null
+          cliente_id?: string | null
+          correlativo?: never
+          creado_en?: string
+          id?: string
+          idempotencia?: string | null
+          tasa_aplicada?: number
+          total_usd?: number
+          unidad_negocio?: Database["public"]["Enums"]["unidad_negocio"]
+          unidades?: number
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venta_anulada_por_fkey"
+            columns: ["anulada_por"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venta_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "cliente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venta_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "cliente_saldo"
+            referencedColumns: ["cliente_id"]
+          },
+          {
+            foreignKeyName: "venta_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venta_linea: {
+        Row: {
+          cantidad: number
+          id: number
+          nombre_snapshot: string
+          precio_unitario_usd: number
+          producto_id: string
+          subtotal_usd: number
+          venta_id: string
+        }
+        Insert: {
+          cantidad: number
+          id?: number
+          nombre_snapshot: string
+          precio_unitario_usd: number
+          producto_id: string
+          subtotal_usd: number
+          venta_id: string
+        }
+        Update: {
+          cantidad?: number
+          id?: number
+          nombre_snapshot?: string
+          precio_unitario_usd?: number
+          producto_id?: string
+          subtotal_usd?: number
+          venta_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venta_linea_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venta_linea_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto_cobertura"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venta_linea_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "producto_rotacion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venta_linea_venta_id_fkey"
+            columns: ["venta_id"]
+            isOneToOne: false
+            referencedRelation: "venta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venta_pago: {
+        Row: {
+          id: number
+          metodo: Database["public"]["Enums"]["metodo_pago"]
+          monto_usd: number
+          venta_id: string
+        }
+        Insert: {
+          id?: number
+          metodo: Database["public"]["Enums"]["metodo_pago"]
+          monto_usd: number
+          venta_id: string
+        }
+        Update: {
+          id?: number
+          metodo?: Database["public"]["Enums"]["metodo_pago"]
+          monto_usd?: number
+          venta_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venta_pago_venta_id_fkey"
+            columns: ["venta_id"]
+            isOneToOne: false
+            referencedRelation: "venta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      cliente_saldo: {
+        Row: {
+          cliente_id: string | null
+          deuda_mas_antigua: string | null
+          nombre: string | null
+          saldo_usd: number | null
+          ultimo_movimiento: string | null
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"] | null
+        }
+        Relationships: []
+      }
+      producto_cobertura: {
+        Row: {
+          activo: boolean | null
+          dias_cobertura: number | null
+          id: string | null
+          nombre: string | null
+          stock_actual: number | null
+          stock_minimo: number | null
+          ultima_venta: string | null
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"] | null
+          vendidos_30d: number | null
+          vendidos_7d: number | null
+          vendidos_90d: number | null
+        }
+        Relationships: []
+      }
+      producto_rotacion: {
+        Row: {
+          id: string | null
+          nombre: string | null
+          ultima_venta: string | null
+          vendidos_30d: number | null
+          vendidos_7d: number | null
+          vendidos_90d: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      anular_venta: {
+        Args: { p_motivo: string; p_venta_id: string }
+        Returns: undefined
+      }
+      aplicar_ajustes: {
+        Args: {
+          p_ajustes: Json
+          p_motivo: Database["public"]["Enums"]["motivo_ajuste"]
+          p_nota?: string
+        }
+        Returns: number
+      }
+      crear_venta: {
+        Args: {
+          p_cliente_id?: string
+          p_idempotencia?: string
+          p_lineas: Json
+          p_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          p_pagos: Json
+          p_tasa_cliente: number
+        }
+        Returns: {
+          anulada: boolean
+          anulada_en: string | null
+          anulada_motivo: string | null
+          anulada_por: string | null
+          cliente_id: string | null
+          correlativo: number
+          creado_en: string
+          id: string
+          idempotencia: string | null
+          tasa_aplicada: number
+          total_usd: number
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          unidades: number
+          usuario_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "venta"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       definir_pin: { Args: { p_pin: string }; Returns: undefined }
       normalizar: { Args: { t: string }; Returns: string }
+      registrar_deuda: {
+        Args: {
+          p_cliente_id: string
+          p_monto: number
+          p_tasa: number
+          p_venta_id: string
+        }
+        Returns: number
+      }
+      reponer_producto: {
+        Args: {
+          p_actualizar_costo?: boolean
+          p_cantidad: number
+          p_costo_unitario_usd?: number
+          p_producto_id: string
+          p_proveedor?: string
+        }
+        Returns: undefined
+      }
       rol_actual: {
         Args: never
         Returns: Database["public"]["Enums"]["rol_usuario"]
@@ -295,8 +762,29 @@ export type Database = {
       validar_pin: { Args: { p_pin: string }; Returns: boolean }
     }
     Enums: {
+      metodo_pago:
+        | "efectivo-ves"
+        | "efectivo-usd"
+        | "punto"
+        | "pago-movil"
+        | "biopago"
+        | "credito"
       moneda: "USD" | "VES"
+      motivo_ajuste:
+        | "conteo"
+        | "merma"
+        | "vencimiento"
+        | "robo"
+        | "error"
+        | "otro"
       rol_usuario: "dueno" | "mostrador"
+      tipo_movimiento:
+        | "venta"
+        | "anulacion"
+        | "reposicion"
+        | "ajuste"
+        | "importacion"
+      tipo_movimiento_deuda: "deuda" | "abono" | "ajuste"
       unidad_medida: "UND" | "KG" | "LITRO" | "PACK"
       unidad_negocio: "bodega" | "cerveza" | "thais"
     }
@@ -429,8 +917,32 @@ export const Constants = {
   },
   public: {
     Enums: {
+      metodo_pago: [
+        "efectivo-ves",
+        "efectivo-usd",
+        "punto",
+        "pago-movil",
+        "biopago",
+        "credito",
+      ],
       moneda: ["USD", "VES"],
+      motivo_ajuste: [
+        "conteo",
+        "merma",
+        "vencimiento",
+        "robo",
+        "error",
+        "otro",
+      ],
       rol_usuario: ["dueno", "mostrador"],
+      tipo_movimiento: [
+        "venta",
+        "anulacion",
+        "reposicion",
+        "ajuste",
+        "importacion",
+      ],
+      tipo_movimiento_deuda: ["deuda", "abono", "ajuste"],
       unidad_medida: ["UND", "KG", "LITRO", "PACK"],
       unidad_negocio: ["bodega", "cerveza", "thais"],
     },

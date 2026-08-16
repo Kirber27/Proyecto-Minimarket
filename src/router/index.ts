@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
+import Resumen from '@/pages/resumen/Resumen.vue'
+import VentaNueva from '@/pages/venta/VentaNueva.vue'
+
 // Los titulos viven en meta, no en cada pagina, para que el layout los
 // renderice sin que la pagina tenga que emitirlos. Las barras de navegacion
 // se construyen filtrando router.getRoutes() por navMovil/navEscritorio y
@@ -12,7 +15,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'resumen',
-    component: () => import('@/pages/resumen/Resumen.vue'),
+    component: Resumen,
     meta: {
       titulo: 'Resumen',
       subtitulo: 'Como va el dia en el local',
@@ -23,7 +26,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/venta',
     name: 'venta',
-    component: () => import('@/pages/venta/VentaNueva.vue'),
+    component: VentaNueva,
     meta: {
       titulo: 'Registrar venta',
       subtitulo: 'Arma la venta y confirma en un toque',

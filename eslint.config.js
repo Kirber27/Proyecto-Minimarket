@@ -15,6 +15,7 @@ export default [
       '**/coverage/**',
       '**/playwright-report/**',
       '**/test-results/**',
+      '**/.vite/**',
       '**/src/types/database.ts',
       // Deno, no Node/browser: globals y modulo distintos (import por URL).
       '**/supabase/functions/**',

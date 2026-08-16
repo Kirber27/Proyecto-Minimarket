@@ -2,7 +2,9 @@
 
 ## Esquema
 
-`supabase/migrations/0006_inventario.sql`:
+`supabase/migrations/0007_inventario.sql` (el número lo pisó `0006_ventas.sql`,
+que se creó primero durante el desarrollo del spec 05; los archivos se numeran
+por orden real de aplicación, no por número de spec):
 
 ```sql
 create type tipo_movimiento as enum

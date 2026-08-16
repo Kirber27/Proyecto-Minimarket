@@ -15,6 +15,11 @@ const formatoFechaHora = new Intl.DateTimeFormat('es-VE', {
   minute: '2-digit',
 })
 
+const formatoHora = new Intl.DateTimeFormat('es-VE', {
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
 /** Formatea una fecha como "16/08/2026". */
 export function formatearFecha(fecha: Date): string {
   return formatoFecha.format(fecha)
@@ -23,6 +28,11 @@ export function formatearFecha(fecha: Date): string {
 /** Formatea una fecha y hora como "16/08/2026, 02:30 p. m.". */
 export function formatearFechaHora(fecha: Date): string {
   return formatoFechaHora.format(fecha)
+}
+
+/** Formatea solo la hora, como "02:30 p. m.". */
+export function formatearHora(fecha: Date): string {
+  return formatoHora.format(fecha)
 }
 
 /** Fecha de hoy en formato ISO `YYYY-MM-DD`, para agrupar por dia de venta. */

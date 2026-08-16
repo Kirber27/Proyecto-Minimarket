@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { useSesionStore } from '@/stores/sesion'
 import { definirPin } from '@/services/authService'
+import * as inventarioService from '@/services/inventarioService'
 import { marcarPinDefinido, tieneModoPinDisponible } from '@/composables/useDispositivo'
 import { notificar } from '@/composables/useNotificaciones'
 import { ErrorDominio } from '@/lib/errorDominio'
@@ -14,6 +15,26 @@ const sesion = useSesionStore()
 const router = useRouter()
 
 const pinListo = ref(tieneModoPinDisponible())
+
+// Diagnostico de reconciliacion de inventario (requisito 4.4, tarea 2.3):
+// la suma de movimientos debe cuadrar exactamente con el stock actual.
+const verificandoInventario = ref(false)
+const descuadres = ref<
+  { productoId: string; stockActual: number; sumaMovimientos: number }[] | null
+>(null)
+
+async function verificarInventario(): Promise<void> {
+  verificandoInventario.value = true
+  try {
+    descuadres.value = await inventarioService.reconciliar()
+  } catch (err) {
+    notificar(
+      err instanceof ErrorDominio ? err.message : 'No se pudo verificar el inventario.',
+    )
+  } finally {
+    verificandoInventario.value = false
+  }
+}
 
 const paso = ref<'inicial' | 'ingresar' | 'confirmar'>('inicial')
 const primerPin = ref('')
@@ -107,6 +128,26 @@ async function cerrarSesion(): Promise<void> {
       >
     </section>
 
+    <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
+      <h2 class="mm-ajustes__titulo">Inventario</h2>
+      <p class="mm-ajustes__ayuda">
+        Verifica que el stock de cada producto cuadre con la suma de sus movimientos.
+      </p>
+      <BotonSecundario :cargando="verificandoInventario" @click="verificarInventario">
+        Verificar inventario
+      </BotonSecundario>
+
+      <p v-if="descuadres?.length === 0" class="mm-ajustes__ok">
+        Todo cuadra: el stock de cada producto coincide con sus movimientos.
+      </p>
+      <ul v-else-if="descuadres && descuadres.length > 0" class="mm-ajustes__descuadres">
+        <li v-for="d in descuadres" :key="d.productoId">
+          Producto {{ d.productoId }}: stock {{ d.stockActual }}, movimientos suman
+          {{ d.sumaMovimientos }}
+        </li>
+      </ul>
+    </section>
+
     <section class="mm-ajustes__seccion">
       <BotonSecundario @click="cerrarSesion">Cerrar sesión</BotonSecundario>
     </section>
@@ -164,6 +205,19 @@ async function cerrarSesion(): Promise<void> {
 .mm-ajustes__pin-ayuda {
   color: v.$tenue;
   margin: 0;
+}
+
+.mm-ajustes__ok {
+  color: v.$ok;
+  font-weight: v.$peso-semi;
+  margin: 0;
+}
+
+.mm-ajustes__descuadres {
+  color: v.$error;
+  font-size: v.$tam-etiqueta;
+  margin: 0;
+  padding-left: 20px;
 }
 
 .mm-ajustes__enlace {

@@ -52,3 +52,76 @@ export interface ProductoInput {
   stockMinimo: number
   activo: boolean
 }
+
+export type MetodoPago =
+  'efectivo-ves' | 'efectivo-usd' | 'punto' | 'pago-movil' | 'biopago' | 'credito'
+
+export interface Cliente {
+  id: string
+  nombre: string
+  telefono: string | null
+  activo: boolean
+  saldoUsd?: Centavos
+}
+
+export interface LineaVenta {
+  id: number
+  productoId: string
+  nombreSnapshot: string
+  cantidad: number
+  precioUnitarioUsd: Centavos
+  subtotalUsd: Centavos
+}
+
+export interface PagoVenta {
+  metodo: MetodoPago
+  montoUsd: Centavos
+}
+
+export interface Venta {
+  id: string
+  correlativo: number
+  unidadNegocio: UnidadNegocio
+  totalUsd: Centavos
+  tasaAplicada: number
+  unidades: number
+  clienteId: string | null
+  anulada: boolean
+  anuladaMotivo: string | null
+  creadoEn: string
+  lineas?: LineaVenta[]
+  pagos?: PagoVenta[]
+}
+
+export type TipoMovimiento =
+  'venta' | 'anulacion' | 'reposicion' | 'ajuste' | 'importacion'
+
+export type MotivoAjuste = 'conteo' | 'merma' | 'vencimiento' | 'robo' | 'error' | 'otro'
+
+export interface MovimientoStock {
+  id: number
+  productoId: string
+  tipo: TipoMovimiento
+  cantidad: number
+  stockResultante: number
+  motivo: MotivoAjuste | null
+  nota: string | null
+  costoUnitarioUsd: Centavos | null
+  ventaId: string | null
+  usuarioId: string
+  creadoEn: string
+}
+
+export interface ProductoCobertura {
+  id: string
+  nombre: string
+  vendidos7d: number
+  vendidos30d: number
+  vendidos90d: number
+  ultimaVenta: string | null
+  stockActual: number
+  stockMinimo: number
+  unidadNegocio: UnidadNegocio
+  activo: boolean
+  diasCobertura: number | null
+}
