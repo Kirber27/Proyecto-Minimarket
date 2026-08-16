@@ -1,0 +1,70 @@
+// Tokens del prototipo (ver .claude/steering/ui-ux.md). No se inventan valores
+// aqui: si algo no coincide con el prototipo, manda el prototipo.
+
+// Color
+$acento: oklch(56% 0.19 275); // primario, botones, activos
+$acento-hover: oklch(46% 0.19 275);
+$acento-suave: oklch(97.5% 0.015 275);
+$tinta: oklch(20% 0.015 265); // texto principal
+// El prototipo usa oklch(63% ...) pero eso da 3.13:1 contra $fondo, por
+// debajo del minimo AA de 4.5:1 (ver .claude/steering/ui-ux.md). 52% cumple
+// con margen contra $fondo y $superficie sin dejar de leerse "tenue".
+$tenue: oklch(52% 0.015 265); // texto secundario
+$fondo: #f1f2f4; // fondo de la app
+$superficie: #ffffff; // tarjetas
+$borde: rgba(20, 22, 30, 0.08);
+
+// Semanticos: texto / fondo / uso
+$ok: oklch(55% 0.14 150);
+$ok-bg: oklch(94% 0.05 150); // stock normal, ingresos
+$aviso: oklch(60% 0.14 70);
+$aviso-bg: oklch(95% 0.05 70); // stock bajo
+$error: oklch(58% 0.18 25);
+$error-bg: oklch(95% 0.05 25); // sin stock, egresos
+$grave: oklch(50% 0.19 25);
+$grave-bg: oklch(94% 0.06 25); // agotado
+
+// Matices de categoria (ver mixin tinte-bg/tinte-fg en _mixins.scss)
+$matiz-bebidas: 240;
+$matiz-viveres: 60;
+$matiz-charcuteria: 200;
+$matiz-tortas: 40;
+$matiz-higiene: 175;
+$matiz-snacks: 330;
+$matiz-defecto: 265;
+
+// Tipografia
+$fuente-base: 'Inter', system-ui, sans-serif;
+
+$tam-cifra-grande: 36px; // 32-40px, cifra grande (total, saldo)
+$tam-titulo-seccion: 20px;
+$tam-cuerpo: 15px; // 14-15px
+$tam-etiqueta: 13px; // 12-13px
+
+$peso-regular: 400;
+$peso-medio: 500;
+$peso-semi: 600;
+$peso-negrita: 700;
+$peso-extra: 800;
+
+// Forma y elevacion
+$radio-sm: 9px; // chips, botones
+$radio-md: 12px; // tarjetas, campos
+$radio-lg: 16px; // paneles
+$sombra-1: 0 2px 10px rgba(20, 22, 40, 0.08);
+$sombra-2: 0 24px 60px rgba(20, 22, 40, 0.14); // modales
+
+// Espaciado, multiplos de 4. Los que mas se repiten: 6, 12, 20, 26, 36.
+$espacio-1: 6px;
+$espacio-2: 12px;
+$espacio-3: 20px;
+$espacio-4: 26px;
+$espacio-5: 36px;
+
+// Corte responsive: las dos superficies
+$corte-escritorio: 768px;
+
+// Interaccion
+$objetivo-tactil-min: 44px;
+$duracion-toast: 2.2s;
+$duracion-panel-exito: 2.4s;

@@ -1,0 +1,114 @@
+[
+  {
+    "id": "viveres",
+    "nombre": "Viveres",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 1
+  },
+  {
+    "id": "granos",
+    "nombre": "Granos",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 2
+  },
+  {
+    "id": "enlatados",
+    "nombre": "Enlatados",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 3
+  },
+  {
+    "id": "condimentos",
+    "nombre": "Condimentos",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 4
+  },
+  {
+    "id": "charcuteria-y-proteinas",
+    "nombre": "Charcuteria y proteinas",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 5
+  },
+  {
+    "id": "bebidas",
+    "nombre": "Bebidas",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 6
+  },
+  {
+    "id": "higiene-y-limpieza",
+    "nombre": "Higiene y limpieza",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 7
+  },
+  {
+    "id": "otros-articulos",
+    "nombre": "Otros articulos",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "BODEGA",
+    "orden": 8
+  },
+  {
+    "id": "galletas",
+    "nombre": "Galletas",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 9
+  },
+  {
+    "id": "wafers",
+    "nombre": "Wafers",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 10
+  },
+  {
+    "id": "snacks",
+    "nombre": "Snacks",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 11
+  },
+  {
+    "id": "chocolates",
+    "nombre": "Chocolates",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 12
+  },
+  {
+    "id": "caramelos",
+    "nombre": "Caramelos",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 13
+  },
+  {
+    "id": "chicles",
+    "nombre": "Chicles",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 14
+  },
+  {
+    "id": "gomitas",
+    "nombre": "Gomitas",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 15
+  },
+  {
+    "id": "tortas-y-panques",
+    "nombre": "Tortas y panques",
+    "unidad_negocio": "bodega",
+    "origen_hoja": "CHUCHERIA",
+    "orden": 16
+  }
+]

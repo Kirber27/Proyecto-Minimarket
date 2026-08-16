@@ -1,0 +1,38 @@
+[
+  {
+    "id": "efectivo-ves",
+    "nombre": "Efectivo Bs.",
+    "moneda": "VES",
+    "afecta_arqueo": true
+  },
+  {
+    "id": "efectivo-usd",
+    "nombre": "Efectivo $",
+    "moneda": "USD",
+    "afecta_arqueo": true
+  },
+  {
+    "id": "punto",
+    "nombre": "Punto de venta",
+    "moneda": "VES",
+    "afecta_arqueo": false
+  },
+  {
+    "id": "pago-movil",
+    "nombre": "Pago movil",
+    "moneda": "VES",
+    "afecta_arqueo": false
+  },
+  {
+    "id": "biopago",
+    "nombre": "Biopago",
+    "moneda": "VES",
+    "afecta_arqueo": false
+  },
+  {
+    "id": "credito",
+    "nombre": "Fiado",
+    "moneda": "USD",
+    "afecta_arqueo": false
+  }
+]

@@ -1,0 +1,47 @@
+// Unico archivo que toca Bootstrap. Mapea nuestros tokens a las variables de
+// Bootstrap antes de importarlo, e importa solo los modulos en uso.
+// No se usa el JS de Bootstrap: modales, dropdowns y offcanvas son
+// componentes Vue propios (ver .claude/steering/tech.md).
+@use 'sass:color';
+@use 'sass:math';
+@use 'variables' as v;
+
+// Bootstrap mezcla colores con las funciones "legacy" de Sass (mix, darken),
+// que no aceptan el espacio oklch de nuestros tokens. Se convierten a rgb
+// solo en el punto de entrada a Bootstrap; el resto de la app sigue usando
+// oklch directamente via las custom properties de main.scss.
+@function a-rgb($color) {
+  @return color.to-space($color, rgb);
+}
+
+// 1. Mapear nuestros tokens a las variables de Bootstrap
+$primary: a-rgb(v.$acento);
+$body-bg: v.$fondo;
+$body-color: a-rgb(v.$tinta);
+$border-color: v.$borde;
+$border-radius: v.$radio-md;
+$border-radius-sm: v.$radio-sm;
+$border-radius-lg: v.$radio-lg;
+$font-family-sans-serif: v.$fuente-base;
+// Bootstrap opera $font-size-base en rem; se convierte desde el token en px
+// asumiendo la base del navegador de 16px.
+$font-size-base: math.div(v.$tam-cuerpo, 16px) * 1rem;
+$box-shadow: v.$sombra-1;
+$box-shadow-lg: v.$sombra-2;
+
+$success: a-rgb(v.$ok);
+$warning: a-rgb(v.$aviso);
+$danger: a-rgb(v.$error);
+
+// 2. Solo los modulos que usamos
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/utilities/api';

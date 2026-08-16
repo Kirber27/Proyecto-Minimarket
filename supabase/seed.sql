@@ -1,0 +1,6 @@
+-- Seed local, cargado por `npx supabase db reset`.
+--
+-- La fundacion de la plataforma no crea tablas de negocio (productos,
+-- clientes...), asi que todavia no hay nada que sembrar aqui. Cada spec que
+-- agregue una tabla de dominio (03-catalogo-productos, 07-deudas-fiado...)
+-- agrega su propio bloque, cargando desde mock/ (ver mock/README.md).

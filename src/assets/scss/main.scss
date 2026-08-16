@@ -1,0 +1,63 @@
+@use 'variables' as v;
+
+// Inter autohospedada: el mostrador trabaja sin senal, una fuente remota
+// bloquea el render. No se enlaza a Google Fonts.
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+}
+
+@import 'bootstrap';
+
+:root {
+  --mm-acento: #{v.$acento};
+  --mm-acento-hover: #{v.$acento-hover};
+  --mm-acento-suave: #{v.$acento-suave};
+  --mm-tinta: #{v.$tinta};
+  --mm-tenue: #{v.$tenue};
+  --mm-fondo: #{v.$fondo};
+  --mm-superficie: #{v.$superficie};
+  --mm-borde: #{v.$borde};
+  --mm-ok: #{v.$ok};
+  --mm-ok-bg: #{v.$ok-bg};
+  --mm-aviso: #{v.$aviso};
+  --mm-aviso-bg: #{v.$aviso-bg};
+  --mm-error: #{v.$error};
+  --mm-error-bg: #{v.$error-bg};
+  --mm-grave: #{v.$grave};
+  --mm-grave-bg: #{v.$grave-bg};
+  --mm-radio-sm: #{v.$radio-sm};
+  --mm-radio-md: #{v.$radio-md};
+  --mm-radio-lg: #{v.$radio-lg};
+  --mm-sombra-1: #{v.$sombra-1};
+  --mm-sombra-2: #{v.$sombra-2};
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  font-family: v.$fuente-base;
+  background-color: v.$fondo;
+  color: v.$tinta;
+}
+
+#app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+// Foco visible siempre: todo lo accionable es alcanzable con teclado.
+:focus-visible {
+  outline: 2px solid v.$acento;
+  outline-offset: 2px;
+}

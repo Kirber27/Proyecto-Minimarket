@@ -1,0 +1,296 @@
+[
+  {
+    "id": "cli-001",
+    "nombre": "Rada",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B4"
+  },
+  {
+    "id": "cli-002",
+    "nombre": "Erick",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B5"
+  },
+  {
+    "id": "cli-003",
+    "nombre": "Ismael",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B6"
+  },
+  {
+    "id": "cli-004",
+    "nombre": "Juan",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B7"
+  },
+  {
+    "id": "cli-005",
+    "nombre": "Jesus",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B8"
+  },
+  {
+    "id": "cli-006",
+    "nombre": "Luisber",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B9"
+  },
+  {
+    "id": "cli-007",
+    "nombre": "Zaiger",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B10"
+  },
+  {
+    "id": "cli-008",
+    "nombre": "Dubal",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B11"
+  },
+  {
+    "id": "cli-009",
+    "nombre": "Lester",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B12"
+  },
+  {
+    "id": "cli-010",
+    "nombre": "Wilifer",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B13"
+  },
+  {
+    "id": "cli-011",
+    "nombre": "Danne",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B14"
+  },
+  {
+    "id": "cli-012",
+    "nombre": "Larry",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B15"
+  },
+  {
+    "id": "cli-013",
+    "nombre": "Mayner",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B16"
+  },
+  {
+    "id": "cli-014",
+    "nombre": "Edi Lindo",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B17"
+  },
+  {
+    "id": "cli-015",
+    "nombre": "Rachel",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B18"
+  },
+  {
+    "id": "cli-016",
+    "nombre": "Juan",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B19"
+  },
+  {
+    "id": "cli-017",
+    "nombre": "Leismar",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B20"
+  },
+  {
+    "id": "cli-018",
+    "nombre": "Lorena",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B21"
+  },
+  {
+    "id": "cli-019",
+    "nombre": "Paola",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B22"
+  },
+  {
+    "id": "cli-020",
+    "nombre": "Sr. Fran",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B23"
+  },
+  {
+    "id": "cli-021",
+    "nombre": "Cheray",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B25"
+  },
+  {
+    "id": "cli-022",
+    "nombre": "Hubert",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B26"
+  },
+  {
+    "id": "cli-023",
+    "nombre": "Josefina",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B27"
+  },
+  {
+    "id": "cli-024",
+    "nombre": "Neiva",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B28"
+  },
+  {
+    "id": "cli-025",
+    "nombre": "Elbimar",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B29"
+  },
+  {
+    "id": "cli-026",
+    "nombre": "Pepino",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B30"
+  },
+  {
+    "id": "cli-027",
+    "nombre": "Hector",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B31"
+  },
+  {
+    "id": "cli-028",
+    "nombre": "Thony",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B32"
+  },
+  {
+    "id": "cli-029",
+    "nombre": "Thais",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B33"
+  },
+  {
+    "id": "cli-030",
+    "nombre": "Bernarda",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B34"
+  },
+  {
+    "id": "cli-031",
+    "nombre": "Frank",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B35"
+  },
+  {
+    "id": "cli-032",
+    "nombre": "Cipriano",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B36"
+  },
+  {
+    "id": "cli-033",
+    "nombre": "Pachi",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B37"
+  },
+  {
+    "id": "cli-034",
+    "nombre": "Jenry",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B38"
+  },
+  {
+    "id": "cli-035",
+    "nombre": "Elbimar",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B39"
+  },
+  {
+    "id": "cli-036",
+    "nombre": "Emerson",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B40"
+  },
+  {
+    "id": "cli-037",
+    "nombre": "Paola",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B41"
+  },
+  {
+    "id": "cli-038",
+    "nombre": "Flavia",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B42"
+  },
+  {
+    "id": "cli-039",
+    "nombre": "Patricia",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B43"
+  },
+  {
+    "id": "cli-040",
+    "nombre": "Frank",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B44"
+  },
+  {
+    "id": "cli-041",
+    "nombre": "Rosita",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B45"
+  },
+  {
+    "id": "cli-042",
+    "nombre": "Alexandra",
+    "telefono": null,
+    "activo": true,
+    "origen": "DEUDAS 2026!B46"
+  }
+]

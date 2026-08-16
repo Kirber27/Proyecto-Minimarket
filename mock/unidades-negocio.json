@@ -1,0 +1,17 @@
+[
+  {
+    "id": "bodega",
+    "nombre": "Bodega",
+    "activo": true
+  },
+  {
+    "id": "cerveza",
+    "nombre": "Cerveza",
+    "activo": true
+  },
+  {
+    "id": "thais",
+    "nombre": "Thais",
+    "activo": true
+  }
+]

@@ -1,0 +1,119 @@
+[
+  {
+    "cliente_id": "cli-002",
+    "unidad_negocio": "bodega",
+    "monto": null,
+    "moneda": "USD",
+    "nota_original": "1,20+4",
+    "requiere_revision": true,
+    "origen": "DEUDAS 2026!C5"
+  },
+  {
+    "cliente_id": "cli-008",
+    "unidad_negocio": "bodega",
+    "monto": null,
+    "moneda": "USD",
+    "nota_original": "1flip",
+    "requiere_revision": true,
+    "origen": "DEUDAS 2026!C11"
+  },
+  {
+    "cliente_id": "cli-009",
+    "unidad_negocio": "bodega",
+    "monto": null,
+    "moneda": "USD",
+    "nota_original": "4,5+1,80+1,80+1refres pq+1,80+1refre pq+1,80+2+1,20+2,10+1,30+1flipgd+1chesse pq+3universal",
+    "requiere_revision": true,
+    "origen": "DEUDAS 2026!C12"
+  },
+  {
+    "cliente_id": "cli-013",
+    "unidad_negocio": "bodega",
+    "monto": 15.0,
+    "moneda": "USD",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!E16"
+  },
+  {
+    "cliente_id": "cli-013",
+    "unidad_negocio": "cerveza",
+    "monto": 1300.0,
+    "moneda": "VES",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!F16"
+  },
+  {
+    "cliente_id": "cli-014",
+    "unidad_negocio": "bodega",
+    "monto": 18.0,
+    "moneda": "USD",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!E17"
+  },
+  {
+    "cliente_id": "cli-014",
+    "unidad_negocio": "cerveza",
+    "monto": 382.0,
+    "moneda": "VES",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!F17"
+  },
+  {
+    "cliente_id": "cli-023",
+    "unidad_negocio": "bodega",
+    "monto": 7420.0,
+    "moneda": "VES",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!C27"
+  },
+  {
+    "cliente_id": "cli-027",
+    "unidad_negocio": "bodega",
+    "monto": null,
+    "moneda": "USD",
+    "nota_original": "2JUSTY GD+4,60+2+2color+4+6,6+4,60+4,80+4,5+1,40",
+    "requiere_revision": true,
+    "origen": "DEUDAS 2026!C31"
+  },
+  {
+    "cliente_id": "cli-027",
+    "unidad_negocio": "bodega",
+    "monto": 11.0,
+    "moneda": "USD",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!E31"
+  },
+  {
+    "cliente_id": "cli-030",
+    "unidad_negocio": "bodega",
+    "monto": 2800.0,
+    "moneda": "VES",
+    "nota_original": null,
+    "requiere_revision": false,
+    "origen": "DEUDAS 2026!C34"
+  },
+  {
+    "cliente_id": "cli-038",
+    "unidad_negocio": "bodega",
+    "monto": null,
+    "moneda": "USD",
+    "nota_original": "2harina trigo+1flip",
+    "requiere_revision": true,
+    "origen": "DEUDAS 2026!C42"
+  },
+  {
+    "cliente_id": "cli-039",
+    "unidad_negocio": "bodega",
+    "monto": null,
+    "moneda": "USD",
+    "nota_original": "1azucarada+2papas lays",
+    "requiere_revision": true,
+    "origen": "DEUDAS 2026!C43"
+  }
+]

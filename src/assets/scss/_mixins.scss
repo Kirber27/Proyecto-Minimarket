@@ -1,0 +1,36 @@
+@use 'variables' as v;
+
+// Par fondo/texto para una categoria a partir de su matiz. Una categoria
+// nueva recibe color por matiz, sin tocar codigo.
+@function tinte-bg($h) {
+  @return oklch(95% 0.035 #{$h});
+}
+
+@function tinte-fg($h) {
+  @return oklch(48% 0.13 #{$h});
+}
+
+// Aplica el par fondo/texto de una categoria a un selector.
+@mixin tinte($h) {
+  background-color: tinte-bg($h);
+  color: tinte-fg($h);
+}
+
+// Corte entre LayoutMovil (< 768px) y LayoutEscritorio (>= 768px).
+@mixin desde-escritorio {
+  @media (min-width: v.$corte-escritorio) {
+    @content;
+  }
+}
+
+@mixin hasta-movil {
+  @media (max-width: (v.$corte-escritorio - 1)) {
+    @content;
+  }
+}
+
+// Objetivo tactil minimo de 44x44px para elementos interactivos en movil.
+@mixin objetivo-tactil {
+  min-width: v.$objetivo-tactil-min;
+  min-height: v.$objetivo-tactil-min;
+}

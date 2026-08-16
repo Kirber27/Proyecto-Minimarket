@@ -1,0 +1,9 @@
+[
+  {
+    "fecha": "2026-08-16",
+    "moneda_base": "USD",
+    "moneda_destino": "VES",
+    "tasa": 800.0,
+    "origen": "BODEGA!G2"
+  }
+]
