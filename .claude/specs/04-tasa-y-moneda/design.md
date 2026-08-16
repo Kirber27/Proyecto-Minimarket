@@ -40,7 +40,7 @@ inserción.
 alter table public.tasa_cambio enable row level security;
 create policy tasa_lectura on public.tasa_cambio for select to authenticated using (true);
 create policy tasa_escritura on public.tasa_cambio for insert to authenticated
-  with check (auth.rol_actual() = 'dueno');
+  with check (public.rol_actual() = 'dueno');
 -- Sin políticas de update ni delete: la tabla es inmutable por diseño.
 ```
 

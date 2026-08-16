@@ -41,6 +41,10 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 250,
+    // El presupuesto real (250 KB gzip del bundle inicial, ver
+    // .claude/steering/tech.md) lo hace cumplir scripts/verificar-presupuesto.mjs
+    // despues del build. Este limite es en bytes crudos, no gzip; se sube
+    // para no duplicar la advertencia con un numero que no es comparable.
+    chunkSizeWarningLimit: 400,
   },
 })

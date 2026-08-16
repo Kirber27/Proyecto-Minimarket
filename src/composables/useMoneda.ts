@@ -1,36 +1,32 @@
-import { computed, ref, type ComputedRef } from 'vue'
-
 import { aBolivares, formatearBs, formatearUsd, type Centavos } from '@/lib/money'
+import { useTasaStore } from '@/stores/tasa'
+import { usePreferenciasStore } from '@/stores/preferencias'
 
-// Interruptor global para el modo "montos ocultos" (ver .claude/steering/ui-ux.md):
-// enmascara las cifras cuando hay clientes mirando la pantalla del mostrador.
-const montosOcultos = ref(false)
-
-const MASCARA = '••••'
-
-export interface MontoFormateado {
-  usd: ComputedRef<string>
-  bs: ComputedRef<string>
-}
+const MASCARA = '•••'
 
 /**
- * Formatea un monto en centavos USD a las dos representaciones que se
- * muestran juntas (`$1,57` / `1.256 Bs.`), respetando el modo de montos
- * ocultos. La tasa la resuelve quien llama (spec 04 aporta el store de tasa).
+ * Punto unico donde la interfaz convierte USD a Bs. y aplica el enmascarado
+ * de "montos ocultos" (requisito 3.4 del spec 04): asi no hay forma de
+ * olvidarlo en una pantalla nueva.
  */
-export function useMoneda(monto: Centavos, tasa: number): MontoFormateado {
-  const usd = computed(() => (montosOcultos.value ? MASCARA : formatearUsd(monto)))
-  const bs = computed(() =>
-    montosOcultos.value ? MASCARA : formatearBs(aBolivares(monto, tasa)),
-  )
+export function useMoneda() {
+  const tasa = useTasaStore()
+  const preferencias = usePreferenciasStore()
 
-  return { usd, bs }
-}
-
-export function useMontosOcultos() {
-  function alternar(): void {
-    montosOcultos.value = !montosOcultos.value
+  /** Bs. para un monto, con la tasa vigente. `null` si todavia no hay tasa. */
+  function bs(usd: Centavos): number | null {
+    return tasa.valor === null ? null : aBolivares(usd, tasa.valor)
   }
 
-  return { montosOcultos, alternar }
+  function mostrarUsd(usd: Centavos): string {
+    return preferencias.ocultarMontos ? MASCARA : formatearUsd(usd)
+  }
+
+  function mostrarBs(usd: Centavos): string {
+    if (preferencias.ocultarMontos) return MASCARA
+    const valor = bs(usd)
+    return valor === null ? '—' : formatearBs(valor)
+  }
+
+  return { bs, mostrarUsd, mostrarBs }
 }

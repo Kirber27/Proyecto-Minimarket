@@ -2,6 +2,7 @@
 import { useRoute } from 'vue-router'
 
 import { useDestinosNav } from '@/composables/useDestinosNav'
+import SelectorNegocio from '@/components/dominio/SelectorNegocio.vue'
 
 const route = useRoute()
 const destinos = useDestinosNav('navMovil')
@@ -10,10 +11,15 @@ const destinos = useDestinosNav('navMovil')
 <template>
   <div class="mm-layout-movil">
     <header class="mm-layout-movil__cabecera">
-      <h1 class="mm-layout-movil__titulo">{{ route.meta.titulo }}</h1>
-      <p v-if="route.meta.subtitulo" class="mm-layout-movil__subtitulo">
-        {{ route.meta.subtitulo }}
-      </p>
+      <div class="mm-layout-movil__fila-superior">
+        <div>
+          <h1 class="mm-layout-movil__titulo">{{ route.meta.titulo }}</h1>
+          <p v-if="route.meta.subtitulo" class="mm-layout-movil__subtitulo">
+            {{ route.meta.subtitulo }}
+          </p>
+        </div>
+        <SelectorNegocio />
+      </div>
     </header>
 
     <main class="mm-layout-movil__contenido">
@@ -46,6 +52,13 @@ const destinos = useDestinosNav('navMovil')
 
 .mm-layout-movil__cabecera {
   padding: 20px 16px 12px;
+}
+
+.mm-layout-movil__fila-superior {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .mm-layout-movil__titulo {
@@ -90,7 +103,8 @@ const destinos = useDestinosNav('navMovil')
   text-decoration: none;
 
   &[aria-current='page'] {
-    color: v.$acento;
+    // $acento no llega a 4.5:1 sobre $superficie; $acento-hover si.
+    color: v.$acento-hover;
   }
 }
 </style>

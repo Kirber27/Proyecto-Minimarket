@@ -28,6 +28,12 @@ contraste contra `$fondo` — por debajo del minimo AA de 4.5:1 de la regla de
 abajo. Se oscurecio a 52%, que da 4.91:1 contra `$fondo` y 5.50:1 contra
 `$superficie`, detectado por `@axe-core/playwright` en la suite E2E.
 
+`$acento` como **fondo** de botones (con texto blanco encima) esta bien, pero
+como **color de texto** sobre `$fondo`/`$superficie`/`$acento-suave` da entre
+4.39:1 y 4.57:1 — por debajo o al limite del minimo AA. Enlaces, texto de
+botones secundarios y el item de navegacion activo usan `$acento-hover` en vez
+de `$acento`, que da 6.8–7.1:1 contra esos mismos fondos.
+
 Semánticos, expresados como trío (texto / fondo / uso):
 
 ```scss

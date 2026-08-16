@@ -39,11 +39,11 @@ alter table public.egreso enable row level security;
 create policy egreso_lectura on public.egreso for select to authenticated using (true);
 create policy egreso_insercion on public.egreso for insert to authenticated
   with check (
-    auth.rol_actual() = 'dueno'
+    public.rol_actual() = 'dueno'
     or categoria not in ('retiro','sueldos')   -- requisito 2.7
   );
 create policy egreso_anulacion on public.egreso for update to authenticated
-  using (auth.rol_actual() = 'dueno');
+  using (public.rol_actual() = 'dueno');
 ```
 
 La restricción del requisito 2.7 vive en la política, no en el formulario.

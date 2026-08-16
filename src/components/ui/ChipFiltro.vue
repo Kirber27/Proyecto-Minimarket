@@ -41,6 +41,8 @@ const emit = defineEmits<{
 .mm-chip--activo {
   background-color: v.$acento-suave;
   border-color: v.$acento;
-  color: v.$acento;
+  // $acento sobre $acento-suave apenas roza 4.5:1; $acento-hover da margen
+  // real (ver .claude/steering/ui-ux.md).
+  color: v.$acento-hover;
 }
 </style>

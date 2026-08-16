@@ -109,7 +109,7 @@ create policy producto_lectura on public.producto
 -- Solo el dueño lo modifica (requisito 5.3 del spec de autenticación)
 create policy producto_escritura on public.producto
   for all to authenticated
-  using (auth.rol_actual() = 'dueno') with check (auth.rol_actual() = 'dueno');
+  using (public.rol_actual() = 'dueno') with check (public.rol_actual() = 'dueno');
 ```
 
 `stock_actual` es la excepción: lo escribe la función `crear_venta` del spec 05,

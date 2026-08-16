@@ -2,6 +2,7 @@
 import { useRoute } from 'vue-router'
 
 import { useDestinosNav } from '@/composables/useDestinosNav'
+import SelectorNegocio from '@/components/dominio/SelectorNegocio.vue'
 
 const route = useRoute()
 const destinos = useDestinosNav('navEscritorio')
@@ -24,10 +25,13 @@ const destinos = useDestinosNav('navEscritorio')
 
     <div class="mm-layout-escritorio__panel">
       <header class="mm-layout-escritorio__cabecera">
-        <h1 class="mm-layout-escritorio__titulo">{{ route.meta.titulo }}</h1>
-        <p v-if="route.meta.subtitulo" class="mm-layout-escritorio__subtitulo">
-          {{ route.meta.subtitulo }}
-        </p>
+        <div>
+          <h1 class="mm-layout-escritorio__titulo">{{ route.meta.titulo }}</h1>
+          <p v-if="route.meta.subtitulo" class="mm-layout-escritorio__subtitulo">
+            {{ route.meta.subtitulo }}
+          </p>
+        </div>
+        <SelectorNegocio />
       </header>
 
       <main class="mm-layout-escritorio__contenido">
@@ -79,12 +83,17 @@ const destinos = useDestinosNav('navEscritorio')
 
   &[aria-current='page'] {
     background-color: v.$acento-suave;
-    color: v.$acento;
+    // $acento sobre $acento-suave apenas roza 4.5:1; $acento-hover da margen.
+    color: v.$acento-hover;
     font-weight: v.$peso-semi;
   }
 }
 
 .mm-layout-escritorio__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   padding: 28px 32px 0;
 }
 

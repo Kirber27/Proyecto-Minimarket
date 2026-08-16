@@ -47,7 +47,9 @@ withDefaults(
 
 .mm-boton--secundario {
   background-color: transparent;
-  color: v.$acento;
+  // $acento no llega a 4.5:1 sobre fondos claros; $acento-hover si (ver
+  // .claude/steering/ui-ux.md).
+  color: v.$acento-hover;
   border: 1px solid v.$borde;
 
   &:hover:not(:disabled) {

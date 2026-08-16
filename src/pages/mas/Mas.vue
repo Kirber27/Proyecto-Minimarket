@@ -1,12 +1,24 @@
 <script setup lang="ts">
-const destinos = [
-  { ruta: '/productos', etiqueta: 'Productos' },
-  { ruta: '/categorias', etiqueta: 'Categorias' },
-  { ruta: '/reportes', etiqueta: 'Reportes' },
-  { ruta: '/alertas', etiqueta: 'Alertas de stock' },
-  { ruta: '/deudas', etiqueta: 'Deudas' },
-  { ruta: '/arqueo', etiqueta: 'Arqueo' },
+import { computed } from 'vue'
+
+import { useSesionStore } from '@/stores/sesion'
+
+const sesion = useSesionStore()
+
+const todosLosDestinos = [
+  { ruta: '/productos', etiqueta: 'Productos', soloDueno: true },
+  { ruta: '/categorias', etiqueta: 'Categorías', soloDueno: true },
+  { ruta: '/reportes', etiqueta: 'Reportes', soloDueno: true },
+  { ruta: '/alertas', etiqueta: 'Alertas de stock', soloDueno: false },
+  { ruta: '/deudas', etiqueta: 'Deudas', soloDueno: false },
+  { ruta: '/arqueo', etiqueta: 'Arqueo', soloDueno: false },
+  { ruta: '/ajustes', etiqueta: 'Ajustes', soloDueno: false },
+  { ruta: '/usuarios', etiqueta: 'Usuarios', soloDueno: true },
 ]
+
+const destinos = computed(() =>
+  todosLosDestinos.filter(d => !d.soloDueno || sesion.esDueno),
+)
 </script>
 
 <template>

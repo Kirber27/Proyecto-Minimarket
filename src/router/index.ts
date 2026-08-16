@@ -50,6 +50,7 @@ const routes: RouteRecordRaw[] = [
       titulo: 'Productos',
       subtitulo: 'Catalogo, precios y unidades de negocio',
       navEscritorio: { etiqueta: 'Productos', orden: 4 },
+      soloDueno: true,
     },
   },
   {
@@ -60,6 +61,7 @@ const routes: RouteRecordRaw[] = [
       titulo: 'Categorias',
       subtitulo: 'Agrupacion del catalogo',
       navEscritorio: { etiqueta: 'Categorias', orden: 5 },
+      soloDueno: true,
     },
   },
   {
@@ -70,6 +72,7 @@ const routes: RouteRecordRaw[] = [
       titulo: 'Reportes',
       subtitulo: 'Ranking de productos y margen por periodo',
       navEscritorio: { etiqueta: 'Reportes', orden: 6 },
+      soloDueno: true,
     },
   },
   {
@@ -123,12 +126,73 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/pages/auth/Login.vue'),
+    path: '/ajustes',
+    name: 'ajustes',
+    component: () => import('@/pages/ajustes/Ajustes.vue'),
+    meta: {
+      titulo: 'Ajustes',
+      subtitulo: 'Tasa del dia, PIN de acceso y preferencias',
+      navEscritorio: { etiqueta: 'Ajustes', orden: 11 },
+    },
+  },
+  {
+    path: '/usuarios',
+    name: 'usuarios',
+    component: () => import('@/pages/usuarios/Usuarios.vue'),
+    meta: {
+      titulo: 'Usuarios',
+      subtitulo: 'Cuentas del dueno y del mostrador',
+      navEscritorio: { etiqueta: 'Usuarios', orden: 12 },
+      soloDueno: true,
+    },
+  },
+  {
+    path: '/ingresar',
+    name: 'ingresar',
+    component: () => import('@/pages/auth/PantallaIngreso.vue'),
     meta: {
       titulo: 'Iniciar sesion',
       layout: 'auth',
+      publica: true,
+    },
+  },
+  {
+    path: '/bloqueado',
+    name: 'bloqueado',
+    component: () => import('@/pages/auth/PantallaBloqueo.vue'),
+    meta: {
+      titulo: 'Pantalla bloqueada',
+      layout: 'auth',
+    },
+  },
+  {
+    path: '/recuperar',
+    name: 'recuperar',
+    component: () => import('@/pages/auth/PantallaRecuperar.vue'),
+    meta: {
+      titulo: 'Recuperar contrasena',
+      layout: 'auth',
+      publica: true,
+    },
+  },
+  {
+    path: '/recuperar/enviado',
+    name: 'recuperar-enviado',
+    component: () => import('@/pages/auth/PantallaRecuperarEnviado.vue'),
+    meta: {
+      titulo: 'Enlace enviado',
+      layout: 'auth',
+      publica: true,
+    },
+  },
+  {
+    path: '/restablecer',
+    name: 'restablecer',
+    component: () => import('@/pages/auth/PantallaRestablecer.vue'),
+    meta: {
+      titulo: 'Nueva contrasena',
+      layout: 'auth',
+      publica: true,
     },
   },
 ]

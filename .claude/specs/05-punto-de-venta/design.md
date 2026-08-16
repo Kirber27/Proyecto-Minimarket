@@ -145,7 +145,7 @@ autorizado para que un `mostrador` mueva stock.
 create or replace function public.anular_venta(p_venta_id uuid, p_motivo text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
-  if auth.rol_actual() <> 'dueno' then raise exception 'sin_permiso'; end if;
+  if public.rol_actual() <> 'dueno' then raise exception 'sin_permiso'; end if;
   -- devolver stock, revertir deuda, marcar anulada
 end $$;
 ```

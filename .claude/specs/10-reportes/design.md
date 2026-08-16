@@ -160,7 +160,7 @@ El requisito 4.6 se aplica en tres capas: la ruta lleva `meta.soloDueno`, la
 navegación oculta la entrada, y la función `reporte_margen` verifica el rol:
 
 ```sql
-if auth.rol_actual() <> 'dueno' then raise exception 'sin_permiso'; end if;
+if public.rol_actual() <> 'dueno' then raise exception 'sin_permiso'; end if;
 ```
 
 Las dos primeras son comodidad; la tercera es el control real.

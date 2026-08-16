@@ -231,6 +231,8 @@ max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
+# El enlace de recuperacion de contrasena usa este mismo valor: 3600s = 60
+# minutos (requisito 3.4 de .claude/specs/02-autenticacion-acceso).
 otp_expiry = 3600
 
 # Use a production-ready SMTP server

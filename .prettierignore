@@ -5,3 +5,4 @@ test-results/
 src/types/database.ts
 .claude/
 mock/
+supabase/functions/

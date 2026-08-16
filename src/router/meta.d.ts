@@ -12,5 +12,9 @@ declare module 'vue-router' {
     layout?: 'auth'
     navMovil?: DestinoNav
     navEscritorio?: DestinoNav
+    /** No requiere sesion. Sin esto, el guard exige autenticacion. */
+    publica?: boolean
+    /** Solo el rol `dueno` puede entrar; `mostrador` rebota a resumen. */
+    soloDueno?: boolean
   }
 }

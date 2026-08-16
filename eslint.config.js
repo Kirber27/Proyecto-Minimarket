@@ -16,6 +16,8 @@ export default [
       '**/playwright-report/**',
       '**/test-results/**',
       '**/src/types/database.ts',
+      // Deno, no Node/browser: globals y modulo distintos (import por URL).
+      '**/supabase/functions/**',
     ],
   },
   ...pluginVue.configs['flat/recommended'],

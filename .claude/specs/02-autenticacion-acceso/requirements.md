@@ -27,23 +27,33 @@ toda la administración.
    mostrar estado de carga.
 7. El usuario DEBE poder alternar la visibilidad de la contraseña.
 
-## Requisito 2 — Ingreso con PIN
+## Requisito 2 — Bloqueo de pantalla con PIN
 
-**Historia:** Como encargado de mostrador quiero entrar con un PIN de 4 dígitos,
-para volver a la venta en dos segundos.
+**Historia:** Como encargado de mostrador quiero bloquear la pantalla con un
+PIN de 4 dígitos y volver a la venta en dos segundos, sin tener que escribir
+la contraseña cada vez que suelto el mostrador un momento.
+
+> Nota de implementación: el PIN bloquea una sesión que sigue activa; no es
+> una segunda forma de iniciar sesión. Ver la sección PIN de
+> [design.md](design.md) para el porqué — se ajustó al probar contra un
+> proyecto real, donde quedó claro que un PIN no puede "reabrir" una sesión
+> que ya se cerró de verdad.
 
 1. El sistema DEBE ofrecer un teclado numérico en pantalla de 4 posiciones.
 2. CUANDO se ingresa el cuarto dígito, ENTONCES el sistema DEBE validar
    automáticamente, sin botón de confirmar.
-3. CUANDO el PIN es correcto, ENTONCES el sistema DEBE autenticar y navegar a `/`.
+3. CUANDO el PIN es correcto, ENTONCES el sistema DEBE desbloquear la pantalla
+   y navegar a `/`.
 4. CUANDO el PIN es incorrecto, ENTONCES el sistema DEBE limpiar los cuatro
    dígitos y mostrar «PIN incorrecto. Intenta otra vez.»
 5. CUANDO se acumulan 5 intentos fallidos, ENTONCES el sistema DEBE bloquear el
-   ingreso por PIN durante 5 minutos y ofrecer el ingreso por contraseña.
+   desbloqueo por PIN durante 5 minutos y ofrecer cerrar sesión para entrar de
+   nuevo con contraseña.
 6. El sistema NO DEBE almacenar el PIN en claro en ningún lugar, ni en la base ni
    en el dispositivo.
 7. El modo PIN SOLO DEBE estar disponible en un dispositivo donde ya se inició
-   sesión con contraseña al menos una vez.
+   sesión con contraseña al menos una vez y donde el perfil tiene un PIN
+   definido.
 
 ## Requisito 3 — Recuperación de contraseña
 
@@ -89,5 +99,5 @@ los reportes de margen, para separar responsabilidades.
 2. CUANDO una petición llega sin sesión válida, ENTONCES la base NO DEBE
    devolver ninguna fila de ninguna tabla de negocio.
 3. Las políticas de escritura DEBEN verificar el rol del usuario mediante una
-   función `auth.rol_actual()` marcada `stable`.
+   función `public.rol_actual()` marcada `stable`.
 4. El sistema NO DEBE incluir la clave `service_role` en el bundle del cliente.
