@@ -169,8 +169,8 @@ import {
   withKeys,
   withMemo,
   withModifiers,
-  withScopeId
-} from "./chunk-AQ4FRCZK.js";
+  withScopeId,
+} from './chunk-AQ4FRCZK.js'
 export {
   BaseTransition,
   BaseTransitionPropsValidators,
@@ -342,5 +342,5 @@ export {
   withKeys,
   withMemo,
   withModifiers,
-  withScopeId
-};
+  withScopeId,
+}

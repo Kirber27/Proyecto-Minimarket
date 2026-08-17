@@ -11,7 +11,9 @@ otro lado. El resto es una vista.
 
 ## Esquema
 
-`supabase/migrations/0008_caja.sql`:
+`supabase/migrations/0011_caja.sql` (el número sigue el orden real de
+aplicación, no el número del spec: para cuando se llegó aquí ya existían
+0009/0010 de deudas):
 
 ```sql
 create type categoria_egreso as enum
@@ -49,6 +51,13 @@ create policy egreso_anulacion on public.egreso for update to authenticated
 La restricción del requisito 2.7 vive en la política, no en el formulario.
 Ocultar las opciones «Retiro» y «Sueldos» al `mostrador` es una cortesía de la
 interfaz; lo que impide el registro es la base.
+
+**Sin política de `update`.** A diferencia del esquema de arriba, la
+implementación no le da a `dueno` una política de `update` directa sobre
+`egreso`: la anulación pasa por `anular_egreso()`, `security definer`, mismo
+patrón que `anular_venta`/`anular_abono` (spec 05/07). Así ningún cliente
+puede reescribir un egreso ya guardado con un `UPDATE` arbitrario, ni siquiera
+el dueño — solo puede marcarlo anulado con motivo, vía la función.
 
 ## Vista unificada de movimientos
 

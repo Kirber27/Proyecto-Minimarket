@@ -135,6 +135,36 @@ export async function listarConSaldo(unidadNegocio: UnidadNegocio): Promise<Clie
   })
 }
 
+export async function obtener(id: string): Promise<Cliente> {
+  const [clienteRes, saldosRes] = await Promise.all([
+    supabase.from('cliente').select('*').eq('id', id).single(),
+    supabase.from('cliente_saldo').select('*').eq('cliente_id', id),
+  ])
+
+  if (clienteRes.error || !clienteRes.data) {
+    throw new ErrorDominio('clientes.no_encontrado', 'No se encontró el cliente.')
+  }
+
+  const cliente = mapearCliente(clienteRes.data)
+  const saldosPorNegocio: Cliente['saldosPorNegocio'] = {}
+  let totalUsd = 0
+  let masAntigua: string | null = null
+
+  for (const s of saldosRes.data ?? []) {
+    if (!s.unidad_negocio) continue
+    saldosPorNegocio[s.unidad_negocio] = aCentavos(s.saldo_usd ?? 0)
+    totalUsd += s.saldo_usd ?? 0
+    if (s.deuda_mas_antigua && (!masAntigua || s.deuda_mas_antigua < masAntigua)) {
+      masAntigua = s.deuda_mas_antigua
+    }
+  }
+
+  cliente.saldosPorNegocio = saldosPorNegocio
+  cliente.saldoUsd = aCentavos(totalUsd)
+  cliente.deudaMasAntigua = masAntigua
+  return cliente
+}
+
 export interface ClienteInput {
   nombre: string
   telefono?: string | null

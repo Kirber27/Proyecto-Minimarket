@@ -97,6 +97,64 @@ export interface DeudaPorRevisar {
   creadoEn: string
 }
 
+export type CategoriaEgreso =
+  'proveedor' | 'insumos' | 'servicios' | 'sueldos' | 'retiro' | 'otro'
+
+export interface Egreso {
+  id: string
+  unidadNegocio: UnidadNegocio
+  descripcion: string
+  montoUsd: Centavos
+  tasaAplicada: number
+  categoria: CategoriaEgreso
+  metodo: MetodoPago
+  referencia: string | null
+  anulado: boolean
+  anuladoMotivo: string | null
+  creadoEn: string
+}
+
+export type FlujoCaja = 'ingreso' | 'egreso'
+export type OrigenMovimientoCaja = 'venta' | 'abono' | 'egreso'
+
+export interface MovimientoCaja {
+  id: string
+  flujo: FlujoCaja
+  origen: OrigenMovimientoCaja
+  documentoId: string
+  clienteId: string | null
+  unidadNegocio: UnidadNegocio
+  concepto: string
+  metodo: MetodoPago
+  categoria: CategoriaEgreso | null
+  montoUsd: Centavos
+  tasaAplicada: number
+  creadoEn: string
+}
+
+export interface SaldoMetodo {
+  metodo: MetodoPago
+  saldoUsd: Centavos
+}
+
+export interface DiaSerie {
+  fecha: string
+  vendidoUsd: Centavos
+}
+
+export interface ResumenDia {
+  vendidoHoyUsd: Centavos
+  numeroVentas: number
+  ticketPromedioUsd: Centavos
+  egresosHoyUsd: Centavos
+  saldoActualUsd: Centavos
+  serie7Dias: DiaSerie[]
+  mismoDiaSemanaAnteriorUsd: Centavos
+  productosEnAlerta: number
+  porCobrarUsd: Centavos
+  pendientesRevision: number
+}
+
 export interface LineaVenta {
   id: number
   productoId: string

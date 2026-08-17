@@ -7,6 +7,7 @@ import {
   formatearBs,
   formatearUsd,
   multiplicar,
+  restar,
   sumar,
 } from '@/lib/money'
 
@@ -49,6 +50,16 @@ describe('sumar', () => {
 
   it('suma la lista vacia como cero', () => {
     expect(sumar()).toBe(0)
+  })
+})
+
+describe('restar', () => {
+  it('resta dos montos en centavos', () => {
+    expect(restar(aCentavos(5), aCentavos(1.5))).toBe(350)
+  })
+
+  it('puede dar negativo (comparacion contra un dia con mas ventas)', () => {
+    expect(restar(aCentavos(1), aCentavos(3))).toBe(-200)
   })
 })
 

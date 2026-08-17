@@ -30,6 +30,11 @@ export function sumar(...montos: Centavos[]): Centavos {
   return marcar(montos.reduce((total, monto) => total + monto, 0))
 }
 
+/** Resta dos montos en centavos (puede dar negativo, p. ej. una comparacion). */
+export function restar(a: Centavos, b: Centavos): Centavos {
+  return marcar(a - b)
+}
+
 /**
  * Multiplica un monto por una cantidad (puede ser decimal, para productos por
  * KG) y redondea una sola vez al final.

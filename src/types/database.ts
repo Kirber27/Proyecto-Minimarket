@@ -240,6 +240,72 @@ export type Database = {
           },
         ]
       }
+      egreso: {
+        Row: {
+          anulado: boolean
+          anulado_en: string | null
+          anulado_motivo: string | null
+          anulado_por: string | null
+          categoria: Database["public"]["Enums"]["categoria_egreso"]
+          creado_en: string
+          descripcion: string
+          id: string
+          metodo: Database["public"]["Enums"]["metodo_pago"]
+          monto_usd: number
+          referencia: string | null
+          tasa_aplicada: number
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+        }
+        Insert: {
+          anulado?: boolean
+          anulado_en?: string | null
+          anulado_motivo?: string | null
+          anulado_por?: string | null
+          categoria?: Database["public"]["Enums"]["categoria_egreso"]
+          creado_en?: string
+          descripcion: string
+          id?: string
+          metodo: Database["public"]["Enums"]["metodo_pago"]
+          monto_usd: number
+          referencia?: string | null
+          tasa_aplicada: number
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+        }
+        Update: {
+          anulado?: boolean
+          anulado_en?: string | null
+          anulado_motivo?: string | null
+          anulado_por?: string | null
+          categoria?: Database["public"]["Enums"]["categoria_egreso"]
+          creado_en?: string
+          descripcion?: string
+          id?: string
+          metodo?: Database["public"]["Enums"]["metodo_pago"]
+          monto_usd?: number
+          referencia?: string | null
+          tasa_aplicada?: number
+          unidad_negocio?: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "egreso_anulado_por_fkey"
+            columns: ["anulado_por"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "egreso_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movimiento_stock: {
         Row: {
           cantidad: number
@@ -721,6 +787,23 @@ export type Database = {
         }
         Relationships: []
       }
+      movimiento_caja: {
+        Row: {
+          categoria: Database["public"]["Enums"]["categoria_egreso"] | null
+          cliente_id: string | null
+          concepto: string | null
+          creado_en: string | null
+          documento_id: string | null
+          flujo: string | null
+          id: string | null
+          metodo: Database["public"]["Enums"]["metodo_pago"] | null
+          monto_usd: number | null
+          origen: string | null
+          tasa_aplicada: number | null
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"] | null
+        }
+        Relationships: []
+      }
       producto_cobertura: {
         Row: {
           activo: boolean | null
@@ -752,6 +835,10 @@ export type Database = {
     Functions: {
       anular_abono: {
         Args: { p_motivo: string; p_movimiento_id: number }
+        Returns: undefined
+      }
+      anular_egreso: {
+        Args: { p_id: string; p_motivo: string }
         Returns: undefined
       }
       anular_venta: {
@@ -843,9 +930,26 @@ export type Database = {
         Args: { p_id: number; p_monto: number }
         Returns: number
       }
+      resumen_dia: {
+        Args: {
+          p_inicio_dia?: string
+          p_negocio: Database["public"]["Enums"]["unidad_negocio"]
+        }
+        Returns: Json
+      }
       rol_actual: {
         Args: never
         Returns: Database["public"]["Enums"]["rol_usuario"]
+      }
+      saldo_caja: {
+        Args: {
+          p_hasta?: string
+          p_negocio: Database["public"]["Enums"]["unidad_negocio"]
+        }
+        Returns: {
+          metodo: Database["public"]["Enums"]["metodo_pago"]
+          saldo_usd: number
+        }[]
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
@@ -854,6 +958,13 @@ export type Database = {
       validar_pin: { Args: { p_pin: string }; Returns: boolean }
     }
     Enums: {
+      categoria_egreso:
+        | "proveedor"
+        | "insumos"
+        | "servicios"
+        | "sueldos"
+        | "retiro"
+        | "otro"
       metodo_pago:
         | "efectivo-ves"
         | "efectivo-usd"
@@ -1009,6 +1120,14 @@ export const Constants = {
   },
   public: {
     Enums: {
+      categoria_egreso: [
+        "proveedor",
+        "insumos",
+        "servicios",
+        "sueldos",
+        "retiro",
+        "otro",
+      ],
       metodo_pago: [
         "efectivo-ves",
         "efectivo-usd",
