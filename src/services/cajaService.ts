@@ -47,6 +47,7 @@ function mapearMovimiento(fila: FilaMovimiento): MovimientoCaja {
     montoUsd: aCentavos(fila.monto_usd!),
     tasaAplicada: Number(fila.tasa_aplicada),
     creadoEn: fila.creado_en!,
+    unidades: fila.unidades,
   }
 }
 
@@ -150,6 +151,8 @@ function mapearResumen(json: Record<string, unknown>): ResumenDia {
     saldoActualUsd: aCentavos(json.saldoActualUsd as number),
     serie7Dias: serie.map(d => ({ fecha: d.fecha, vendidoUsd: aCentavos(d.vendidoUsd) })),
     mismoDiaSemanaAnteriorUsd: aCentavos(json.mismoDiaSemanaAnteriorUsd as number),
+    semanaActualUsd: aCentavos(json.semanaActualUsd as number),
+    semanaAnteriorUsd: aCentavos(json.semanaAnteriorUsd as number),
     productosEnAlerta: json.productosEnAlerta as number,
     porCobrarUsd: aCentavos(json.porCobrarUsd as number),
     pendientesRevision: json.pendientesRevision as number,

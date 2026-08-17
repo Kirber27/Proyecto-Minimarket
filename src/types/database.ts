@@ -939,6 +939,7 @@ export type Database = {
           origen: string | null
           tasa_aplicada: number | null
           unidad_negocio: Database["public"]["Enums"]["unidad_negocio"] | null
+          unidades: number | null
         }
         Relationships: []
       }

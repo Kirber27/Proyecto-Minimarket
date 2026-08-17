@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
+import { obtenerIniciales } from '@/lib/texto'
 import type { Producto } from '@/types/dominio'
 import PrecioDoble from '@/components/dominio/PrecioDoble.vue'
 
 const props = defineProps<{
   producto: Producto
+  matiz: number
   cantidadEnCarrito: number
 }>()
+
+const iniciales = computed(() => obtenerIniciales(props.producto.nombre))
 
 const emit = defineEmits<{
   agregar: [producto: Producto, cantidad: number]
@@ -59,12 +63,23 @@ function disminuir(evento: Event): void {
       :disabled="sinStock"
       @click="alTocarTarjeta"
     >
+      <div
+        class="mm-tarjeta-venta__caja"
+        :style="{ '--mm-matiz': matiz }"
+        aria-hidden="true"
+      >
+        {{ iniciales }}
+      </div>
       <span class="mm-tarjeta-venta__nombre">{{ producto.nombre }}</span>
-      <PrecioDoble :usd="producto.precioVentaUsd" tamano="sm" />
-      <span v-if="sinStock" class="mm-tarjeta-venta__etiqueta-sin-stock">Sin stock</span>
-      <span v-else class="mm-tarjeta-venta__stock-libre">
-        {{ producto.stockActual }} {{ esKg ? 'kg' : 'u.' }} disp.
-      </span>
+      <div class="mm-tarjeta-venta__pie">
+        <PrecioDoble :usd="producto.precioVentaUsd" tamano="sm" />
+        <span v-if="sinStock" class="mm-tarjeta-venta__etiqueta-sin-stock"
+          >Sin stock</span
+        >
+        <span v-else class="mm-tarjeta-venta__stock-libre">
+          {{ producto.stockActual }} {{ esKg ? 'kg' : 'u.' }}
+        </span>
+      </div>
     </button>
 
     <div v-if="editandoKg" class="mm-tarjeta-venta__kg" @click.stop>
@@ -87,7 +102,7 @@ function disminuir(evento: Event): void {
     <div v-else-if="enCarrito" class="mm-tarjeta-venta__controles" @click.stop>
       <button
         type="button"
-        class="mm-tarjeta-venta__control"
+        class="mm-tarjeta-venta__control mm-tarjeta-venta__control--restar"
         aria-label="Quitar una unidad"
         @click="disminuir"
       >
@@ -96,7 +111,7 @@ function disminuir(evento: Event): void {
       <span class="mm-tarjeta-venta__cantidad">{{ cantidadEnCarrito }}</span>
       <button
         type="button"
-        class="mm-tarjeta-venta__control"
+        class="mm-tarjeta-venta__control mm-tarjeta-venta__control--sumar"
         aria-label="Agregar una unidad"
         :disabled="sinStock"
         @click="aumentar"
@@ -113,8 +128,8 @@ function disminuir(evento: Event): void {
 
 .mm-tarjeta-venta {
   position: relative;
-  border: 1px solid v.$borde;
-  border-radius: v.$radio-md;
+  border: 1.5px solid v.$borde;
+  border-radius: v.$radio-lg;
   background-color: v.$superficie;
   overflow: hidden;
 
@@ -128,13 +143,12 @@ function disminuir(evento: Event): void {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   padding: 12px;
   border: none;
   background: none;
   text-align: left;
   cursor: pointer;
-  min-height: 88px;
 
   &:disabled {
     cursor: not-allowed;
@@ -145,20 +159,42 @@ function disminuir(evento: Event): void {
   }
 }
 
+.mm-tarjeta-venta__caja {
+  width: 100%;
+  height: 50px;
+  border-radius: v.$radio-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: v.$peso-extra;
+  background-color: m.tinte-bg(var(--mm-matiz));
+  color: m.tinte-fg(var(--mm-matiz));
+}
+
 .mm-tarjeta-venta__nombre {
   font-weight: v.$peso-semi;
   color: v.$tinta;
   font-size: v.$tam-etiqueta;
-  line-height: 1.3;
+  line-height: 1.25;
+  min-height: 2.5em;
+}
+
+.mm-tarjeta-venta__pie {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .mm-tarjeta-venta__stock-libre {
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: v.$peso-semi;
   color: v.$tenue;
 }
 
 .mm-tarjeta-venta__etiqueta-sin-stock {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: v.$peso-semi;
   color: v.$error;
 }
@@ -167,18 +203,28 @@ function disminuir(evento: Event): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  background-color: v.$acento;
+  gap: 6px;
+  padding: 0 12px 12px;
 }
 
 .mm-tarjeta-venta__control {
   @include m.objetivo-tactil;
+  flex: 1;
   border: none;
-  background: none;
-  color: white;
-  font-size: 20px;
-  font-weight: v.$peso-semi;
+  border-radius: v.$radio-sm;
+  font-size: 18px;
+  font-weight: v.$peso-extra;
   cursor: pointer;
+
+  &--restar {
+    background-color: v.$fondo;
+    color: v.$tinta;
+  }
+
+  &--sumar {
+    background-color: v.$acento;
+    color: white;
+  }
 
   &:disabled {
     opacity: 0.5;
@@ -187,15 +233,16 @@ function disminuir(evento: Event): void {
 }
 
 .mm-tarjeta-venta__cantidad {
-  color: white;
-  font-weight: v.$peso-semi;
+  min-width: 28px;
+  text-align: center;
+  color: v.$acento-hover;
+  font-weight: v.$peso-extra;
 }
 
 .mm-tarjeta-venta__kg {
   display: flex;
   gap: 6px;
-  padding: 8px;
-  background-color: v.$acento-suave;
+  padding: 0 12px 12px;
 }
 
 .mm-tarjeta-venta__kg-input {

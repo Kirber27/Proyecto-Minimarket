@@ -3,11 +3,13 @@ import { computed } from 'vue'
 
 import { calcularEstadoStock } from '@/lib/stock'
 import { calcularMargen, formatearMargen } from '@/lib/margen'
-import type { Producto } from '@/types/dominio'
+import type { Categoria, Producto } from '@/types/dominio'
 import PrecioDoble from '@/components/dominio/PrecioDoble.vue'
+import CajaIniciales from '@/components/dominio/CajaIniciales.vue'
 
 const props = defineProps<{
   producto: Producto
+  categoria?: Categoria
   diasCobertura: number | null
 }>()
 
@@ -47,6 +49,11 @@ const proximoAAgotarse = computed(
     @click="emit('click', producto)"
   >
     <div class="mm-tarjeta-inventario__cabecera">
+      <CajaIniciales
+        :nombre="producto.nombre"
+        :matiz="categoria?.matiz ?? 265"
+        :tamano="34"
+      />
       <span class="mm-tarjeta-inventario__nombre">{{ producto.nombre }}</span>
       <span
         class="mm-tarjeta-inventario__estado"
@@ -113,6 +120,8 @@ const proximoAAgotarse = computed(
 }
 
 .mm-tarjeta-inventario__nombre {
+  flex: 1;
+  min-width: 0;
   font-weight: v.$peso-semi;
   color: v.$tinta;
 }

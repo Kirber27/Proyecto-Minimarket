@@ -16,6 +16,7 @@ importar Bootstrap, para que los componentes de Bootstrap hereden la paleta.
 $acento:        oklch(56% 0.19 275);   // primario, botones, activos
 $acento-hover:  oklch(46% 0.19 275);
 $acento-suave:  oklch(97.5% 0.015 275);
+$acento-tenue:  oklch(88% 0.045 275);  // barras inactivas del grafico de ventas
 $tinta:         oklch(20% 0.015 265);  // texto principal
 $tenue:         oklch(52% 0.015 265);  // texto secundario
 $fondo:         #F1F2F4;               // fondo de la app
@@ -73,6 +74,7 @@ mostrador trabaja sin señal y una fuente remota bloquea el render.
 $radio-sm: 9px;    // chips, botones
 $radio-md: 12px;   // tarjetas, campos
 $radio-lg: 16px;   // paneles
+$radio-xl: 24px;   // hoja inferior en movil, panel de exito
 $sombra-1: 0 2px 10px rgba(20, 22, 40, 0.08);
 $sombra-2: 0 24px 60px rgba(20, 22, 40, 0.14);   // modales
 ```

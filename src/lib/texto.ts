@@ -7,3 +7,13 @@ const MARCAS_DIACRITICAS = /[\u0300-\u036f]/g
 export function normalizarTexto(texto: string): string {
   return texto.normalize('NFD').replace(MARCAS_DIACRITICAS, '').toLowerCase()
 }
+
+/** Iniciales para la caja de color de un producto o categoria (ver
+ * prototipo de Claude Design): las primeras letras de las dos primeras
+ * palabras, o las dos primeras letras si el nombre es una sola palabra. */
+export function obtenerIniciales(nombre: string): string {
+  const palabras = nombre.trim().split(/\s+/).filter(Boolean)
+  if (palabras.length === 0) return ''
+  if (palabras.length === 1) return palabras[0]!.slice(0, 2).toUpperCase()
+  return (palabras[0]![0]! + palabras[1]![0]!).toUpperCase()
+}

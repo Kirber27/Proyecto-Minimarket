@@ -197,6 +197,14 @@ $$;
 El gráfico de barras (requisito 5.2) replica el del prototipo: siete barras, la
 última en color de acento, con el valor abreviado (`$212k`) encima.
 
+La implementación usa nombres en camelCase (`vendidoHoyUsd`, no
+`vendido_hoy`: el resto de las RPC de la app ya sigue esa convención en el
+JSON que consume el cliente) y agrega dos campos que no estaban en este
+esbozo, `semanaActualUsd` y `semanaAnteriorUsd` (migración
+`0013_resumen_semana.sql`), para la tarjeta "Semana" del dashboard del
+prototipo de Claude Design: el total de la semana en curso y el de la
+semana anterior, para calcular el delta con signo y color.
+
 ## Exportación
 
 El CSV del requisito 6.4 se genera en el cliente desde los datos ya cargados. Se

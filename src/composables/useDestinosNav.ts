@@ -2,11 +2,13 @@ import { computed, type ComputedRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useSesionStore } from '@/stores/sesion'
+import type { NombreIcono } from '@/lib/iconos'
 
 export interface DestinoNavResuelto {
   ruta: string
   etiqueta: string
   orden: number
+  icono: NombreIcono
   activo: boolean
 }
 
@@ -36,6 +38,7 @@ export function useDestinosNav(
         ruta: r.path,
         etiqueta: r.meta[tipo]!.etiqueta,
         orden: r.meta[tipo]!.orden,
+        icono: r.meta[tipo]!.icono,
         activo: route.path === r.path,
       }))
       .sort((a, b) => a.orden - b.orden),

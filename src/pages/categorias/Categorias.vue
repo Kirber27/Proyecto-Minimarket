@@ -10,6 +10,7 @@ import BotonPrimario from '@/components/ui/BotonPrimario.vue'
 import BotonSecundario from '@/components/ui/BotonSecundario.vue'
 import CampoTexto from '@/components/ui/CampoTexto.vue'
 import ChipCategoria from '@/components/dominio/ChipCategoria.vue'
+import CajaIniciales from '@/components/dominio/CajaIniciales.vue'
 import ModalBase from '@/components/ui/ModalBase.vue'
 import EstadoVacio from '@/components/ui/EstadoVacio.vue'
 
@@ -169,6 +170,7 @@ async function confirmarReasignacion(): Promise<void> {
         :key="categoria.id"
         class="mm-categorias__fila"
       >
+        <CajaIniciales :nombre="categoria.nombre" :matiz="categoria.matiz" :tamano="34" />
         <ChipCategoria :nombre="categoria.nombre" :matiz="categoria.matiz" />
 
         <template v-if="editandoId === categoria.id">

@@ -4,14 +4,13 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useSesionStore } from '@/stores/sesion'
 import { useCatalogoStore } from '@/stores/catalogo'
 import * as cajaService from '@/services/cajaService'
-import * as ventasService from '@/services/ventasService'
-import * as clienteService from '@/services/clienteService'
+import { useMovimientoCaja } from '@/composables/useMovimientoCaja'
 import { ETIQUETAS_METODO, afectaArqueo } from '@/lib/metodosPago'
 import { aBolivares, aCentavos, formatearUsd, sumar, type Centavos } from '@/lib/money'
 import { formatearFechaHora } from '@/lib/fechas'
 import { ErrorDominio } from '@/lib/errorDominio'
 import { notificar } from '@/composables/useNotificaciones'
-import type { Cliente, MovimientoCaja, SaldoMetodo, Venta } from '@/types/dominio'
+import type { MovimientoCaja, SaldoMetodo } from '@/types/dominio'
 import EstadoVacio from '@/components/ui/EstadoVacio.vue'
 import CampoTexto from '@/components/ui/CampoTexto.vue'
 import BotonPrimario from '@/components/ui/BotonPrimario.vue'
@@ -38,8 +37,7 @@ const cargando = ref(true)
 const movimientos = ref<MovimientoCaja[]>([])
 const saldos = ref<SaldoMetodo[]>([])
 const mostrandoEgreso = ref(false)
-const ventaAbierta = ref<Venta | null>(null)
-const clienteAbierto = ref<Cliente | null>(null)
+const { ventaAbierta, clienteAbierto, abrirMovimiento } = useMovimientoCaja()
 const anulandoEgresoId = ref<string | null>(null)
 const motivoAnulacion = ref('')
 
@@ -86,18 +84,6 @@ const saldoEfectivo = computed<Centavos>(() =>
 const saldoElectronico = computed<Centavos>(() =>
   sumar(...saldos.value.filter(s => !afectaArqueo(s.metodo)).map(s => s.saldoUsd)),
 )
-
-async function abrirMovimiento(m: MovimientoCaja): Promise<void> {
-  try {
-    if (m.origen === 'venta') {
-      ventaAbierta.value = await ventasService.obtenerDetalle(m.documentoId)
-    } else if (m.origen === 'abono' && m.clienteId) {
-      clienteAbierto.value = await clienteService.obtener(m.clienteId)
-    }
-  } catch (err) {
-    notificar(err instanceof ErrorDominio ? err.message : 'No se pudo abrir el detalle.')
-  }
-}
 
 function pedirAnularEgreso(m: MovimientoCaja): void {
   anulandoEgresoId.value = m.documentoId

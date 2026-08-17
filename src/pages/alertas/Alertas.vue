@@ -13,6 +13,7 @@ import { notificar } from '@/composables/useNotificaciones'
 import type { Producto, ProductoCobertura } from '@/types/dominio'
 import EstadoVacio from '@/components/ui/EstadoVacio.vue'
 import BotonSecundario from '@/components/ui/BotonSecundario.vue'
+import CajaIniciales from '@/components/dominio/CajaIniciales.vue'
 import Reposicion from '@/pages/inventario/Reposicion.vue'
 
 const catalogo = useCatalogoStore()
@@ -39,6 +40,7 @@ async function cargar(): Promise<void> {
 onMounted(cargar)
 
 const productoPorId = computed(() => new Map(catalogo.productos.map(p => [p.id, p])))
+const categoriaPorId = computed(() => new Map(catalogo.categorias.map(c => [c.id, c])))
 
 type Nivel = 'agotado' | 'critico' | 'proximo'
 
@@ -124,6 +126,11 @@ async function alReponer(): Promise<void> {
       >
         <div class="mm-alertas__info">
           <div class="mm-alertas__cabecera">
+            <CajaIniciales
+              :nombre="alerta.producto.nombre"
+              :matiz="categoriaPorId.get(alerta.producto.categoriaId)?.matiz ?? 265"
+              :tamano="34"
+            />
             <span class="mm-alertas__nombre">{{ alerta.producto.nombre }}</span>
             <span class="mm-alertas__nivel">{{ ETIQUETAS_NIVEL[alerta.nivel] }}</span>
           </div>

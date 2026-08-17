@@ -5,6 +5,7 @@
 $acento: oklch(56% 0.19 275); // primario, botones, activos
 $acento-hover: oklch(46% 0.19 275);
 $acento-suave: oklch(97.5% 0.015 275);
+$acento-tenue: oklch(88% 0.045 275); // barras inactivas del grafico de ventas
 $tinta: oklch(20% 0.015 265); // texto principal
 // El prototipo usa oklch(63% ...) pero eso da 3.13:1 contra $fondo, por
 // debajo del minimo AA de 4.5:1 (ver .claude/steering/ui-ux.md). 52% cumple
@@ -51,6 +52,7 @@ $peso-extra: 800;
 $radio-sm: 9px; // chips, botones
 $radio-md: 12px; // tarjetas, campos
 $radio-lg: 16px; // paneles
+$radio-xl: 24px; // hoja inferior en movil, panel de exito
 $sombra-1: 0 2px 10px rgba(20, 22, 40, 0.08);
 $sombra-2: 0 24px 60px rgba(20, 22, 40, 0.14); // modales
 

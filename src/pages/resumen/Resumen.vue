@@ -2,28 +2,29 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { useCatalogoStore } from '@/stores/catalogo'
+import { useSesionStore } from '@/stores/sesion'
 import { usePreferenciasStore } from '@/stores/preferencias'
-import * as ventasService from '@/services/ventasService'
-import * as inventarioService from '@/services/inventarioService'
 import * as cajaService from '@/services/cajaService'
+import { useMovimientoCaja } from '@/composables/useMovimientoCaja'
 import { ETIQUETAS_METODO } from '@/lib/metodosPago'
 import { notificar } from '@/composables/useNotificaciones'
 import { ErrorDominio } from '@/lib/errorDominio'
 import { aCentavos, aUsd, formatearUsd, restar, type Centavos } from '@/lib/money'
 import { formatearHora } from '@/lib/fechas'
-import type { ProductoCobertura, ResumenDia, Venta } from '@/types/dominio'
+import type { MovimientoCaja, ResumenDia } from '@/types/dominio'
 import EstadoVacio from '@/components/ui/EstadoVacio.vue'
 import PrecioDoble from '@/components/dominio/PrecioDoble.vue'
 import VentaDetalle from '@/pages/venta/VentaDetalle.vue'
+import ClienteDetalle from '@/pages/deudas/ClienteDetalle.vue'
 
 const catalogo = useCatalogoStore()
+const sesion = useSesionStore()
 const preferencias = usePreferenciasStore()
+const { ventaAbierta, clienteAbierto, abrirMovimiento } = useMovimientoCaja()
 
-const ventas = ref<Venta[]>([])
 const cargando = ref(true)
-const ventaAbierta = ref<Venta | null>(null)
-const cobertura = ref<ProductoCobertura[]>([])
 const resumen = ref<ResumenDia | null>(null)
+const movimientos = ref<MovimientoCaja[]>([])
 
 function inicioDeHoy(): Date {
   const d = new Date()
@@ -34,12 +35,17 @@ function inicioDeHoy(): Date {
 async function cargar(): Promise<void> {
   cargando.value = true
   try {
-    const [listado, resumenDia] = await Promise.all([
-      ventasService.listarDelDia(catalogo.negocio),
-      cajaService.resumenDia(catalogo.negocio, inicioDeHoy()),
+    const inicio = inicioDeHoy()
+    const fin = new Date(inicio.getTime() + 86_400_000)
+    const [resumenDia, mov] = await Promise.all([
+      cajaService.resumenDia(catalogo.negocio, inicio),
+      cajaService.listarMovimientos(catalogo.negocio, {
+        desde: inicio.toISOString(),
+        hasta: fin.toISOString(),
+      }),
     ])
-    ventas.value = listado
     resumen.value = resumenDia
+    movimientos.value = mov
   } catch (err) {
     notificar(
       err instanceof ErrorDominio ? err.message : 'No se pudo cargar el resumen del día.',
@@ -49,47 +55,19 @@ async function cargar(): Promise<void> {
   }
 }
 
-async function cargarAlertas(): Promise<void> {
-  try {
-    cobertura.value = await inventarioService.listarCobertura()
-  } catch {
-    // La tarjeta de alertas es informativa; si falla, el resto del Resumen
-    // sigue funcionando.
-  }
-}
+onMounted(cargar)
 
-onMounted(() => {
-  void cargar()
-  void cargarAlertas()
-})
+const movimientosTop = computed(() => movimientos.value.slice(0, 5))
 
-/** Requisitos 5.2, 8.8: conteo y los tres productos más críticos. */
-const productosEnAlerta = computed(() =>
-  cobertura.value
-    .filter(c => c.activo && c.unidadNegocio === catalogo.negocio)
-    .filter(
-      c =>
-        c.stockActual < c.stockMinimo ||
-        (c.diasCobertura !== null && c.diasCobertura < 7),
-    )
-    .sort((a, b) => a.stockActual - b.stockActual),
-)
-
-const conteoAlertas = computed(() =>
-  inventarioService.contarAlertas(cobertura.value, catalogo.negocio),
-)
-
-const pendientesRevision = computed(() => resumen.value?.pendientesRevision ?? 0)
-
-/** Requisito 5.3: comparación con el mismo día de la semana anterior. */
+/** Requisito 5.3 (spec 08): comparación con el mismo día de la semana anterior. */
 const diferenciaSemana = computed<Centavos | null>(() => {
   if (!resumen.value) return null
-  return restar(resumen.value.vendidoHoyUsd, resumen.value.mismoDiaSemanaAnteriorUsd)
+  return restar(resumen.value.semanaActualUsd, resumen.value.semanaAnteriorUsd)
 })
 
 const porcentajeSemana = computed<number | null>(() => {
-  if (!resumen.value || resumen.value.mismoDiaSemanaAnteriorUsd <= 0) return null
-  return (diferenciaSemana.value! / resumen.value.mismoDiaSemanaAnteriorUsd) * 100
+  if (!resumen.value || resumen.value.semanaAnteriorUsd <= 0) return null
+  return (diferenciaSemana.value! / resumen.value.semanaAnteriorUsd) * 100
 })
 
 /** Requisito 5.2: siete barras, la de hoy en color de acento. */
@@ -101,6 +79,13 @@ const barrasSerie = computed(() => {
     alturaPct: Math.round((d.vendidoUsd / maximo) * 100),
     esHoy: indice === serie.length - 1,
   }))
+})
+
+const promedioDia = computed<Centavos>(() => {
+  const serie = resumen.value?.serie7Dias ?? []
+  if (serie.length === 0) return aCentavos(0)
+  const total = serie.reduce((acc, d) => acc + d.vendidoUsd, 0)
+  return aCentavos(total / serie.length / 100)
 })
 
 const DIAS_SEMANA = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
@@ -117,15 +102,21 @@ function formatearAbreviado(usd: Centavos): string {
   return formatearUsd(usd)
 }
 
-async function abrirVenta(venta: Venta): Promise<void> {
-  try {
-    ventaAbierta.value = await ventasService.obtenerDetalle(venta.id)
-  } catch (err) {
-    notificar(err instanceof ErrorDominio ? err.message : 'No se pudo abrir la venta.')
-  }
+function metaMovimiento(m: MovimientoCaja): string {
+  return `${formatearHora(new Date(m.creadoEn))} · ${ETIQUETAS_METODO[m.metodo]}`
 }
 
-async function alAnular(): Promise<void> {
+/** "Venta · N productos · Metodo" para ventas; el resto conserva su
+ * concepto (descripcion del egreso, o "Abono · nombre del cliente"). */
+function descripcionMovimiento(m: MovimientoCaja): string {
+  if (m.origen === 'venta' && m.unidades !== null) {
+    const unidad = m.unidades === 1 ? 'producto' : 'productos'
+    return `Venta · ${m.unidades} ${unidad} · ${ETIQUETAS_METODO[m.metodo]}`
+  }
+  return m.concepto
+}
+
+async function alAnularVenta(): Promise<void> {
   ventaAbierta.value = null
   await cargar()
 }
@@ -133,209 +124,403 @@ async function alAnular(): Promise<void> {
 
 <template>
   <div class="mm-resumen">
-    <div class="mm-resumen__cifra">
-      <span class="mm-resumen__etiqueta">Vendido hoy</span>
-      <PrecioDoble v-if="resumen" :usd="resumen.vendidoHoyUsd" tamano="lg" />
-      <p v-if="diferenciaSemana !== null" class="mm-resumen__comparacion">
+    <div class="mm-resumen__barra-montos">
+      <button
+        type="button"
+        class="mm-resumen__boton-montos"
+        :class="{ 'mm-resumen__boton-montos--activo': preferencias.ocultarMontos }"
+        @click="preferencias.alternarOcultarMontos()"
+      >
+        {{ preferencias.ocultarMontos ? 'Mostrar montos' : 'Ocultar montos' }}
+      </button>
+    </div>
+
+    <div v-if="resumen" class="mm-resumen__tarjetas">
+      <div class="mm-resumen__tarjeta mm-resumen__tarjeta--acento">
+        <span class="mm-resumen__etiqueta-tarjeta">Ventas de hoy</span>
+        <PrecioDoble :usd="resumen.vendidoHoyUsd" tamano="md" />
+        <span class="mm-resumen__meta-tarjeta"
+          >{{ resumen.numeroVentas }} venta{{
+            resumen.numeroVentas === 1 ? '' : 's'
+          }}</span
+        >
+      </div>
+
+      <div class="mm-resumen__tarjeta">
+        <span class="mm-resumen__etiqueta-tarjeta">Ventas de la semana</span>
+        <PrecioDoble :usd="resumen.semanaActualUsd" tamano="md" />
         <span
+          v-if="porcentajeSemana !== null"
+          class="mm-resumen__meta-tarjeta"
           :class="
-            diferenciaSemana >= 0
-              ? 'mm-resumen__comparacion--arriba'
-              : 'mm-resumen__comparacion--abajo'
+            porcentajeSemana >= 0
+              ? 'mm-resumen__meta-tarjeta--arriba'
+              : 'mm-resumen__meta-tarjeta--abajo'
           "
         >
-          {{ diferenciaSemana >= 0 ? '▲' : '▼' }}
-          {{ formatearUsd(aCentavos(Math.abs(diferenciaSemana) / 100)) }}
+          {{ porcentajeSemana >= 0 ? '+' : '' }}{{ porcentajeSemana.toFixed(0) }}% vs.
+          semana pasada
         </span>
-        vs. mismo día de la semana pasada
-        <template v-if="porcentajeSemana !== null">
-          ({{ porcentajeSemana >= 0 ? '+' : '' }}{{ porcentajeSemana.toFixed(0) }}%)
-        </template>
-      </p>
-    </div>
+      </div>
 
-    <div v-if="resumen" class="mm-resumen__cifras-secundarias">
-      <div>
-        <span class="mm-resumen__etiqueta-chica">Ventas</span>
-        <strong>{{ resumen.numeroVentas }}</strong>
-      </div>
-      <div>
-        <span class="mm-resumen__etiqueta-chica">Ticket promedio</span>
-        <PrecioDoble :usd="resumen.ticketPromedioUsd" tamano="sm" />
-      </div>
-      <div>
-        <span class="mm-resumen__etiqueta-chica">Egresos hoy</span>
-        <PrecioDoble :usd="resumen.egresosHoyUsd" tamano="sm" />
-      </div>
-      <RouterLink to="/caja" class="mm-resumen__cifra-enlace">
-        <span class="mm-resumen__etiqueta-chica">Saldo en caja</span>
-        <PrecioDoble :usd="resumen.saldoActualUsd" tamano="sm" />
+      <RouterLink to="/caja" class="mm-resumen__tarjeta">
+        <span class="mm-resumen__etiqueta-tarjeta">Saldo de caja</span>
+        <PrecioDoble :usd="resumen.saldoActualUsd" tamano="md" />
+        <span class="mm-resumen__meta-tarjeta"
+          >Egresos hoy {{ formatearUsd(resumen.egresosHoyUsd) }}</span
+        >
       </RouterLink>
-    </div>
 
-    <div
-      v-if="barrasSerie.length > 0"
-      class="mm-resumen__grafico"
-      role="img"
-      aria-label="Ventas de los últimos 7 días"
-    >
-      <div v-for="dia in barrasSerie" :key="dia.fecha" class="mm-resumen__barra-col">
-        <span class="mm-resumen__barra-valor">{{
-          formatearAbreviado(dia.vendidoUsd)
-        }}</span>
-        <div class="mm-resumen__barra-pista">
-          <div
-            class="mm-resumen__barra"
-            :class="{ 'mm-resumen__barra--hoy': dia.esHoy }"
-            :style="{ height: `${Math.max(dia.alturaPct, 3)}%` }"
-          />
-        </div>
-        <span class="mm-resumen__barra-dia">{{ etiquetaDia(dia.fecha) }}</span>
-      </div>
+      <RouterLink to="/alertas" class="mm-resumen__tarjeta mm-resumen__tarjeta--alerta">
+        <span class="mm-resumen__etiqueta-tarjeta mm-resumen__etiqueta-tarjeta--alerta"
+          >Stock bajo</span
+        >
+        <strong class="mm-resumen__cifra-alerta">{{ resumen.productosEnAlerta }}</strong>
+        <span class="mm-resumen__ver-alerta">Ver alertas →</span>
+      </RouterLink>
     </div>
 
     <RouterLink
       v-if="resumen && resumen.porCobrarUsd > 0"
       to="/deudas"
-      class="mm-resumen__alertas"
+      class="mm-resumen__fila-enlace"
     >
-      <div class="mm-resumen__alertas-cabecera">
-        <span>Por cobrar en fiado</span>
-        <span class="mm-resumen__alertas-ver">Ver clientes</span>
-      </div>
+      <span>Por cobrar en fiado</span>
       <PrecioDoble :usd="resumen.porCobrarUsd" tamano="sm" />
     </RouterLink>
 
     <RouterLink
-      v-if="pendientesRevision > 0"
+      v-if="resumen && resumen.pendientesRevision > 0"
       to="/deudas"
-      class="mm-resumen__alertas mm-resumen__alertas--revision"
+      class="mm-resumen__fila-enlace mm-resumen__fila-enlace--aviso"
     >
-      <div class="mm-resumen__alertas-cabecera">
-        <span>
-          {{ pendientesRevision }} nota{{ pendientesRevision === 1 ? '' : 's' }} de la
-          planilla por revisar
-        </span>
-        <span class="mm-resumen__alertas-ver">Revisar</span>
-      </div>
-    </RouterLink>
-
-    <RouterLink
-      v-if="productosEnAlerta.length > 0"
-      to="/alertas"
-      class="mm-resumen__alertas"
-    >
-      <div class="mm-resumen__alertas-cabecera">
-        <span>
-          {{ conteoAlertas.agotados + conteoAlertas.criticos }} producto{{
-            conteoAlertas.agotados + conteoAlertas.criticos === 1 ? '' : 's'
-          }}
-          por reponer
-        </span>
-        <span class="mm-resumen__alertas-ver">Ver todo</span>
-      </div>
-      <p class="mm-resumen__alertas-lista">
-        {{
-          productosEnAlerta
-            .slice(0, 3)
-            .map(p => p.nombre)
-            .join(' · ')
+      <span
+        >{{ resumen.pendientesRevision }} nota{{
+          resumen.pendientesRevision === 1 ? '' : 's'
         }}
-      </p>
+        de la planilla por revisar</span
+      >
+      <span class="mm-resumen__ver">Revisar</span>
     </RouterLink>
 
-    <EstadoVacio
-      v-if="!cargando && ventas.length === 0"
-      titulo="Todavía no hay ventas hoy"
-      descripcion="Cuando registres una venta, aquí vas a ver cuánto llevas del día."
-      etiqueta-accion="Registrar venta"
-      ruta-accion="/venta"
-    />
-
-    <ul v-else class="mm-resumen__lista list-unstyled">
-      <li v-for="venta in ventas" :key="venta.id">
-        <button type="button" class="mm-resumen__venta" @click="abrirVenta(venta)">
-          <div class="mm-resumen__venta-info">
-            <span class="mm-resumen__venta-hora">
-              {{ formatearHora(new Date(venta.creadoEn)) }}
-            </span>
-            <span class="mm-resumen__venta-detalle">
-              {{ venta.unidades }} u. ·
-              {{
-                venta.pagos?.map(p => ETIQUETAS_METODO[p.metodo] ?? p.metodo).join(' + ')
-              }}
-            </span>
+    <div class="mm-resumen__cuerpo-escritorio">
+      <div class="mm-resumen__panel">
+        <div class="mm-resumen__panel-cabecera">
+          <span class="mm-resumen__etiqueta-panel">Últimos 7 días</span>
+          <span class="mm-resumen__prom"
+            >prom. {{ formatearAbreviado(promedioDia) }}</span
+          >
+        </div>
+        <div
+          class="mm-resumen__grafico"
+          role="img"
+          aria-label="Ventas de los últimos 7 días"
+        >
+          <div v-for="dia in barrasSerie" :key="dia.fecha" class="mm-resumen__barra-col">
+            <span class="mm-resumen__barra-valor">{{
+              formatearAbreviado(dia.vendidoUsd)
+            }}</span>
+            <div class="mm-resumen__barra-pista">
+              <div
+                class="mm-resumen__barra"
+                :class="{ 'mm-resumen__barra--hoy': dia.esHoy }"
+                :style="{ height: `${Math.max(dia.alturaPct, 3)}%` }"
+              />
+            </div>
+            <span class="mm-resumen__barra-dia">{{ etiquetaDia(dia.fecha) }}</span>
           </div>
-          <PrecioDoble :usd="venta.totalUsd" tamano="sm" />
-        </button>
-      </li>
-    </ul>
+        </div>
+      </div>
+
+      <div class="mm-resumen__panel mm-resumen__panel--movimientos">
+        <div class="mm-resumen__panel-cabecera">
+          <span class="mm-resumen__etiqueta-panel">Movimientos de hoy</span>
+          <RouterLink to="/caja" class="mm-resumen__ver">Ver caja</RouterLink>
+        </div>
+
+        <EstadoVacio
+          v-if="!cargando && movimientosTop.length === 0"
+          titulo="Todavía no hay movimientos hoy"
+          descripcion="Cuando registres una venta, aquí vas a ver cuánto llevas del día."
+          etiqueta-accion="Registrar venta"
+          ruta-accion="/venta"
+        />
+
+        <ul v-else class="mm-resumen__movimientos list-unstyled">
+          <li v-for="m in movimientosTop" :key="m.id">
+            <button
+              type="button"
+              class="mm-resumen__movimiento"
+              @click="abrirMovimiento(m)"
+            >
+              <span
+                class="mm-resumen__movimiento-signo"
+                :class="
+                  m.flujo === 'ingreso'
+                    ? 'mm-resumen__movimiento-signo--ingreso'
+                    : 'mm-resumen__movimiento-signo--egreso'
+                "
+                aria-hidden="true"
+                >{{ m.flujo === 'ingreso' ? '+' : '−' }}</span
+              >
+              <div class="mm-resumen__movimiento-info">
+                <span class="mm-resumen__movimiento-desc">{{
+                  descripcionMovimiento(m)
+                }}</span>
+                <span class="mm-resumen__movimiento-meta">{{ metaMovimiento(m) }}</span>
+              </div>
+              <span
+                class="mm-resumen__movimiento-monto"
+                :class="
+                  m.flujo === 'ingreso'
+                    ? 'mm-resumen__movimiento-monto--ingreso'
+                    : 'mm-resumen__movimiento-monto--egreso'
+                "
+              >
+                {{ m.flujo === 'ingreso' ? '+' : '−' }}{{ formatearUsd(m.montoUsd) }}
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mm-resumen__panel mm-resumen__accesos">
+        <span class="mm-resumen__etiqueta-panel">Accesos rápidos</span>
+        <div class="mm-resumen__accesos-grilla">
+          <RouterLink
+            to="/venta"
+            class="mm-resumen__accion mm-resumen__accion--principal"
+          >
+            Registrar venta
+          </RouterLink>
+          <RouterLink v-if="sesion.esDueno" to="/productos" class="mm-resumen__accion">
+            Agregar producto
+          </RouterLink>
+          <RouterLink to="/caja" class="mm-resumen__accion">Registrar egreso</RouterLink>
+          <RouterLink v-if="sesion.esDueno" to="/reportes" class="mm-resumen__accion">
+            Ver reportes
+          </RouterLink>
+        </div>
+      </div>
+    </div>
 
     <VentaDetalle
       v-if="ventaAbierta"
       :venta="ventaAbierta"
       @cerrar="ventaAbierta = null"
-      @anulada="alAnular"
+      @anulada="alAnularVenta"
+    />
+
+    <ClienteDetalle
+      v-if="clienteAbierto"
+      :cliente="clienteAbierto"
+      @cerrar="clienteAbierto = null"
+      @cambiado="cargar"
     />
   </div>
 </template>
 
 <style scoped lang="scss">
 @use '@/assets/scss/variables' as v;
+@use '@/assets/scss/mixins' as m;
 
 .mm-resumen {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
 }
 
-.mm-resumen__cifra {
+.mm-resumen__barra-montos {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  justify-content: flex-end;
 }
 
-.mm-resumen__etiqueta {
-  font-size: v.$tam-etiqueta;
-  font-weight: v.$peso-semi;
+.mm-resumen__boton-montos {
+  min-height: 32px;
+  padding: 0 13px;
+  border-radius: v.$radio-sm;
+  border: 1px solid v.$borde;
+  background-color: v.$superficie;
   color: v.$tenue;
-}
-
-.mm-resumen__comparacion {
-  margin: 0;
-  font-size: v.$tam-etiqueta;
-  color: v.$tenue;
-}
-
-.mm-resumen__comparacion--arriba {
-  color: v.$ok;
+  font-size: 11.5px;
   font-weight: v.$peso-semi;
-}
+  cursor: pointer;
 
-.mm-resumen__comparacion--abajo {
-  color: v.$error;
-  font-weight: v.$peso-semi;
-}
-
-.mm-resumen__cifras-secundarias {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-
-  > div,
-  > a {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  &--activo {
+    background-color: v.$tinta;
+    color: white;
+    border-color: v.$tinta;
   }
 }
 
-.mm-resumen__cifra-enlace {
-  text-decoration: none;
-  color: inherit;
+.mm-resumen__tarjetas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.mm-resumen__etiqueta-chica {
+.mm-resumen__tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px;
+  border-radius: v.$radio-lg;
+  background-color: v.$superficie;
+  border: 1px solid v.$borde;
+  box-shadow: v.$sombra-1;
+  text-decoration: none;
+  color: inherit;
+
+  &--acento {
+    background-color: v.$acento;
+    border-color: v.$acento;
+    color: white;
+  }
+
+  &--alerta {
+    border-color: v.$grave-bg;
+  }
+}
+
+.mm-resumen__etiqueta-tarjeta {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: v.$peso-negrita;
+  color: v.$tenue;
+
+  .mm-resumen__tarjeta--acento & {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  &--alerta {
+    color: v.$grave;
+  }
+}
+
+.mm-resumen__meta-tarjeta {
+  font-size: 11px;
+  color: v.$tenue;
+
+  .mm-resumen__tarjeta--acento & {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  &--arriba {
+    color: v.$ok;
+    font-weight: v.$peso-semi;
+  }
+
+  &--abajo {
+    color: v.$error;
+    font-weight: v.$peso-semi;
+  }
+}
+
+.mm-resumen__cifra-alerta {
+  font-size: v.$tam-titulo-seccion;
+  font-weight: v.$peso-extra;
+  color: v.$grave;
+}
+
+.mm-resumen__ver-alerta {
+  font-size: 11px;
+  font-weight: v.$peso-semi;
+  color: v.$grave;
+}
+
+.mm-resumen__accesos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: v.$fondo;
+}
+
+.mm-resumen__accesos-grilla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mm-resumen__accion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  border-radius: v.$radio-md;
+  border: 1.5px solid v.$borde;
+  background-color: v.$superficie;
+  color: v.$tinta;
+  font-size: 13.5px;
+  font-weight: v.$peso-semi;
+  text-decoration: none;
+  text-align: center;
+
+  &--principal {
+    border: none;
+    background-color: v.$tinta;
+    color: white;
+  }
+}
+
+.mm-resumen__fila-enlace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: v.$radio-md;
+  border: 1px solid v.$borde;
+  background-color: v.$superficie;
+  text-decoration: none;
+  color: v.$tinta;
+  font-size: v.$tam-etiqueta;
+  font-weight: v.$peso-semi;
+
+  &--aviso {
+    border-color: v.$aviso;
+    background-color: v.$aviso-bg;
+  }
+}
+
+.mm-resumen__ver {
+  font-size: v.$tam-etiqueta;
+  font-weight: v.$peso-semi;
+  color: v.$acento-hover;
+  text-decoration: none;
+}
+
+.mm-resumen__cuerpo-escritorio {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mm-resumen__panel {
+  padding: 16px;
+  border-radius: v.$radio-lg;
+  background-color: v.$superficie;
+  border: 1px solid v.$borde;
+  box-shadow: v.$sombra-1;
+}
+
+.mm-resumen__panel-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.mm-resumen__etiqueta-panel {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: v.$peso-negrita;
+  color: v.$tenue;
+}
+
+.mm-resumen__prom {
   font-size: 11px;
   color: v.$tenue;
 }
@@ -345,8 +530,7 @@ async function alAnular(): Promise<void> {
   align-items: flex-end;
   justify-content: space-between;
   gap: 6px;
-  height: 120px;
-  padding: 8px 4px 0;
+  height: 110px;
 }
 
 .mm-resumen__barra-col {
@@ -375,11 +559,11 @@ async function alAnular(): Promise<void> {
   width: 100%;
   min-height: 3px;
   border-radius: 3px 3px 0 0;
-  background-color: v.$borde;
-}
+  background-color: v.$acento-tenue;
 
-.mm-resumen__barra--hoy {
-  background-color: v.$acento;
+  &--hoy {
+    background-color: v.$acento;
+  }
 }
 
 .mm-resumen__barra-dia {
@@ -387,52 +571,20 @@ async function alAnular(): Promise<void> {
   color: v.$tenue;
 }
 
-.mm-resumen__alertas {
+.mm-resumen__movimientos {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px 14px;
-  border: 1px solid v.$aviso;
-  border-radius: v.$radio-md;
-  background-color: v.$acento-suave;
-  text-decoration: none;
-  color: v.$tinta;
 }
 
-.mm-resumen__alertas-cabecera {
+.mm-resumen__movimiento {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-weight: v.$peso-semi;
-}
-
-.mm-resumen__alertas-ver {
-  font-size: v.$tam-etiqueta;
-  color: v.$acento-hover;
-  font-weight: v.$peso-semi;
-}
-
-.mm-resumen__alertas-lista {
-  margin: 0;
-  font-size: v.$tam-etiqueta;
-  color: v.$tenue;
-}
-
-.mm-resumen__lista {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.mm-resumen__venta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   width: 100%;
   min-height: v.$objetivo-tactil-min;
-  padding: 10px 12px;
+  padding: 10px 4px;
   border: none;
-  border-bottom: 1px solid v.$borde;
+  border-top: 1px solid v.$borde;
   background: none;
   text-align: left;
   cursor: pointer;
@@ -442,18 +594,75 @@ async function alAnular(): Promise<void> {
   }
 }
 
-.mm-resumen__venta-info {
+.mm-resumen__movimiento-signo {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: v.$radio-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: v.$peso-extra;
+
+  &--ingreso {
+    background-color: v.$ok-bg;
+    color: v.$ok;
+  }
+
+  &--egreso {
+    background-color: v.$error-bg;
+    color: v.$error;
+  }
+}
+
+.mm-resumen__movimiento-info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
-.mm-resumen__venta-hora {
-  font-weight: v.$peso-medio;
+.mm-resumen__movimiento-desc {
   font-size: v.$tam-etiqueta;
+  font-weight: v.$peso-medio;
+  color: v.$tinta;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.mm-resumen__venta-detalle {
-  font-size: 12px;
+.mm-resumen__movimiento-meta {
+  font-size: 10.5px;
   color: v.$tenue;
+}
+
+.mm-resumen__movimiento-monto {
+  flex-shrink: 0;
+  font-size: v.$tam-etiqueta;
+  font-weight: v.$peso-extra;
+  white-space: nowrap;
+
+  &--ingreso {
+    color: v.$ok;
+  }
+
+  &--egreso {
+    color: v.$error;
+  }
+}
+
+// Escritorio: cabeceras en una sola fila de 4, y el grafico + movimientos
+// lado a lado, igual que el dashboard del prototipo.
+@include m.desde-escritorio {
+  .mm-resumen__tarjetas {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mm-resumen__cuerpo-escritorio {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 18px;
+  }
 }
 </style>

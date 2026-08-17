@@ -19,8 +19,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Resumen',
       subtitulo: 'Como va el dia en el local',
-      navMovil: { etiqueta: 'Inicio', orden: 1 },
-      navEscritorio: { etiqueta: 'Resumen', orden: 1 },
+      navMovil: { etiqueta: 'Inicio', orden: 1, icono: 'resumen' },
+      navEscritorio: { etiqueta: 'Resumen', orden: 1, icono: 'resumen' },
     },
   },
   {
@@ -30,8 +30,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Registrar venta',
       subtitulo: 'Arma la venta y confirma en un toque',
-      navMovil: { etiqueta: 'Vender', orden: 2 },
-      navEscritorio: { etiqueta: 'Registrar venta', orden: 2 },
+      navMovil: { etiqueta: 'Vender', orden: 2, icono: 'venta' },
+      navEscritorio: { etiqueta: 'Registrar venta', orden: 2, icono: 'venta' },
     },
   },
   {
@@ -41,8 +41,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Inventario',
       subtitulo: 'Stock, precios y margen por producto',
-      navMovil: { etiqueta: 'Stock', orden: 3 },
-      navEscritorio: { etiqueta: 'Inventario', orden: 3 },
+      navMovil: { etiqueta: 'Stock', orden: 3, icono: 'inventario' },
+      navEscritorio: { etiqueta: 'Inventario', orden: 3, icono: 'inventario' },
     },
   },
   {
@@ -52,7 +52,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Productos',
       subtitulo: 'Catalogo, precios y unidades de negocio',
-      navEscritorio: { etiqueta: 'Productos', orden: 4 },
+      navEscritorio: { etiqueta: 'Productos', orden: 4, icono: 'productos' },
       soloDueno: true,
     },
   },
@@ -63,7 +63,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Categorias',
       subtitulo: 'Agrupacion del catalogo',
-      navEscritorio: { etiqueta: 'Categorias', orden: 5 },
+      navEscritorio: { etiqueta: 'Categorias', orden: 5, icono: 'categorias' },
       soloDueno: true,
     },
   },
@@ -74,7 +74,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Reportes',
       subtitulo: 'Ranking de productos y margen por periodo',
-      navEscritorio: { etiqueta: 'Reportes', orden: 6 },
+      navEscritorio: { etiqueta: 'Reportes', orden: 6, icono: 'reportes' },
       soloDueno: true,
     },
   },
@@ -85,8 +85,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Flujo de caja',
       subtitulo: 'Ingresos, egresos y saldo',
-      navMovil: { etiqueta: 'Caja', orden: 4 },
-      navEscritorio: { etiqueta: 'Flujo de caja', orden: 7 },
+      navMovil: { etiqueta: 'Caja', orden: 4, icono: 'caja' },
+      navEscritorio: { etiqueta: 'Flujo de caja', orden: 7, icono: 'caja' },
     },
   },
   {
@@ -96,7 +96,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Alertas de stock',
       subtitulo: 'Productos por reponer',
-      navEscritorio: { etiqueta: 'Alertas de stock', orden: 8 },
+      navEscritorio: { etiqueta: 'Alertas de stock', orden: 8, icono: 'alertas' },
     },
   },
   {
@@ -106,7 +106,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Deudas',
       subtitulo: 'Clientes con saldo pendiente',
-      navEscritorio: { etiqueta: 'Deudas', orden: 9 },
+      navEscritorio: { etiqueta: 'Deudas', orden: 9, icono: 'deudas' },
     },
   },
   {
@@ -116,7 +116,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Arqueo de caja',
       subtitulo: 'Conteo por denominacion y cuadre',
-      navEscritorio: { etiqueta: 'Arqueo', orden: 10 },
+      navEscritorio: { etiqueta: 'Arqueo', orden: 10, icono: 'arqueo' },
     },
   },
   {
@@ -125,7 +125,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/mas/Mas.vue'),
     meta: {
       titulo: 'Mas opciones',
-      navMovil: { etiqueta: 'Mas', orden: 5 },
+      navMovil: { etiqueta: 'Mas', orden: 5, icono: 'mas' },
     },
   },
   {
@@ -135,7 +135,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Ajustes',
       subtitulo: 'Tasa del dia, PIN de acceso y preferencias',
-      navEscritorio: { etiqueta: 'Ajustes', orden: 11 },
+      navEscritorio: { etiqueta: 'Ajustes', orden: 11, icono: 'ajustes' },
     },
   },
   {
@@ -145,7 +145,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       titulo: 'Usuarios',
       subtitulo: 'Cuentas del dueno y del mostrador',
-      navEscritorio: { etiqueta: 'Usuarios', orden: 12 },
+      navEscritorio: { etiqueta: 'Usuarios', orden: 12, icono: 'usuarios' },
       soloDueno: true,
     },
   },

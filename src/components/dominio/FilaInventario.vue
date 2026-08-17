@@ -3,11 +3,13 @@ import { computed } from 'vue'
 
 import { calcularEstadoStock } from '@/lib/stock'
 import { calcularMargen, formatearMargen } from '@/lib/margen'
-import type { Producto } from '@/types/dominio'
+import type { Categoria, Producto } from '@/types/dominio'
 import PrecioDoble from '@/components/dominio/PrecioDoble.vue'
+import CajaIniciales from '@/components/dominio/CajaIniciales.vue'
 
 const props = defineProps<{
   producto: Producto
+  categoria?: Categoria
   diasCobertura: number | null
 }>()
 
@@ -46,10 +48,17 @@ const proximoAAgotarse = computed(
     @keydown.enter="emit('click', producto)"
   >
     <span role="cell" class="mm-fila-inventario__nombre">
-      {{ producto.nombre }}
-      <span v-if="!producto.activo" class="mm-fila-inventario__etiqueta-inactivo"
-        >Inactivo</span
-      >
+      <CajaIniciales
+        :nombre="producto.nombre"
+        :matiz="categoria?.matiz ?? 265"
+        :tamano="34"
+      />
+      <span>
+        {{ producto.nombre }}
+        <span v-if="!producto.activo" class="mm-fila-inventario__etiqueta-inactivo"
+          >Inactivo</span
+        >
+      </span>
     </span>
     <span role="cell"><PrecioDoble :usd="producto.precioVentaUsd" tamano="sm" /></span>
     <span role="cell">
@@ -103,6 +112,9 @@ const proximoAAgotarse = computed(
 }
 
 .mm-fila-inventario__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: v.$peso-medio;
   color: v.$tinta;
 }

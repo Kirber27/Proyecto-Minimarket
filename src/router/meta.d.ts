@@ -1,8 +1,10 @@
 import 'vue-router'
+import type { NombreIcono } from '@/lib/iconos'
 
 interface DestinoNav {
   etiqueta: string
   orden: number
+  icono: NombreIcono
 }
 
 declare module 'vue-router' {

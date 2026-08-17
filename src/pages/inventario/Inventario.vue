@@ -53,6 +53,7 @@ async function cargar(): Promise<void> {
 onMounted(cargar)
 
 const coberturaPorId = computed(() => new Map(cobertura.value.map(c => [c.id, c])))
+const categoriaPorId = computed(() => new Map(catalogo.categorias.map(c => [c.id, c])))
 
 /** Todo el catalogo de la unidad activa, activos e inactivos (requisito 1.5). */
 const productosDelNegocio = computed(() =>
@@ -217,6 +218,7 @@ async function alCambiar(): Promise<void> {
               v-for="{ item: producto } in virtualMovil.visibles.value"
               :key="producto.id"
               :producto="producto"
+              :categoria="categoriaPorId.get(producto.categoriaId)"
               :dias-cobertura="coberturaPorId.get(producto.id)?.diasCobertura ?? null"
               @click="productoAbierto = producto"
             />
@@ -228,6 +230,7 @@ async function alCambiar(): Promise<void> {
           v-for="producto in resultados"
           :key="producto.id"
           :producto="producto"
+          :categoria="categoriaPorId.get(producto.categoriaId)"
           :dias-cobertura="coberturaPorId.get(producto.id)?.diasCobertura ?? null"
           @click="productoAbierto = producto"
         />
@@ -264,6 +267,7 @@ async function alCambiar(): Promise<void> {
                 v-for="{ item: producto } in virtualEscritorio.visibles.value"
                 :key="producto.id"
                 :producto="producto"
+                :categoria="categoriaPorId.get(producto.categoriaId)"
                 :dias-cobertura="coberturaPorId.get(producto.id)?.diasCobertura ?? null"
                 @click="productoAbierto = producto"
               />
@@ -275,6 +279,7 @@ async function alCambiar(): Promise<void> {
             v-for="producto in resultados"
             :key="producto.id"
             :producto="producto"
+            :categoria="categoriaPorId.get(producto.categoriaId)"
             :dias-cobertura="coberturaPorId.get(producto.id)?.diasCobertura ?? null"
             @click="productoAbierto = producto"
           />

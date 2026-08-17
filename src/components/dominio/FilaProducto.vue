@@ -5,6 +5,7 @@ import { calcularEstadoStock } from '@/lib/stock'
 import type { Categoria, Producto } from '@/types/dominio'
 import PrecioDoble from '@/components/dominio/PrecioDoble.vue'
 import ChipCategoria from '@/components/dominio/ChipCategoria.vue'
+import CajaIniciales from '@/components/dominio/CajaIniciales.vue'
 
 const props = defineProps<{
   producto: Producto
@@ -33,7 +34,14 @@ const textoStock = computed(() => {
     @click="emit('click', producto)"
     @keydown.enter="emit('click', producto)"
   >
-    <span role="cell" class="mm-fila-producto__nombre">{{ producto.nombre }}</span>
+    <span role="cell" class="mm-fila-producto__nombre">
+      <CajaIniciales
+        :nombre="producto.nombre"
+        :matiz="categoria?.matiz ?? 265"
+        :tamano="34"
+      />
+      {{ producto.nombre }}
+    </span>
     <span role="cell">
       <ChipCategoria
         v-if="categoria"
@@ -72,6 +80,9 @@ const textoStock = computed(() => {
 }
 
 .mm-fila-producto__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: v.$peso-medio;
   color: v.$tinta;
 }

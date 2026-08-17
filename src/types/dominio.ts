@@ -130,6 +130,8 @@ export interface MovimientoCaja {
   montoUsd: Centavos
   tasaAplicada: number
   creadoEn: string
+  /** Solo en ventas, para el concepto "Venta · N productos · Metodo". */
+  unidades: number | null
 }
 
 export interface SaldoMetodo {
@@ -187,6 +189,8 @@ export interface ResumenDia {
   saldoActualUsd: Centavos
   serie7Dias: DiaSerie[]
   mismoDiaSemanaAnteriorUsd: Centavos
+  semanaActualUsd: Centavos
+  semanaAnteriorUsd: Centavos
   productosEnAlerta: number
   porCobrarUsd: Centavos
   pendientesRevision: number

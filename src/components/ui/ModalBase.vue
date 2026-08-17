@@ -87,6 +87,7 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 @use '@/assets/scss/variables' as v;
+@use '@/assets/scss/mixins' as m;
 
 .mm-modal__fondo {
   position: fixed;
@@ -97,6 +98,13 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 20px;
   z-index: 1050;
+
+  // En movil es una hoja que sube desde abajo, no un dialogo centrado (ver
+  // el prototipo de Claude Design): mas facil de alcanzar con el pulgar.
+  @include m.hasta-movil {
+    align-items: flex-end;
+    padding: 0;
+  }
 }
 
 .mm-modal__panel {
@@ -107,6 +115,41 @@ onBeforeUnmount(() => {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  animation: mm-modal-aparecer 0.18s ease-out;
+
+  @include m.hasta-movil {
+    border-radius: v.$radio-xl v.$radio-xl 0 0;
+    max-height: 88vh;
+    animation: mm-modal-subir 0.22s ease-out;
+  }
+}
+
+@keyframes mm-modal-aparecer {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mm-modal-subir {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-modal__panel {
+    animation: none;
+  }
 }
 
 .mm-modal__cabecera {
