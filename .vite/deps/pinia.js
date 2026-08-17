@@ -210,10 +210,7 @@ function setupDevtoolsPlugin(pluginDescriptor, setupFn) {
 var activePinia
 var setActivePinia = pinia => (activePinia = pinia)
 var getActivePinia = () => (hasInjectionContext() && inject(piniaSymbol)) || activePinia
-var piniaSymbol = true
-  ? Symbol('pinia')
-  : /* istanbul ignore next */
-    Symbol()
+var piniaSymbol = true ? Symbol('pinia') : /* istanbul ignore next */ Symbol()
 function isPlainObject(o) {
   return (
     o &&

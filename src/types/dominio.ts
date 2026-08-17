@@ -142,6 +142,43 @@ export interface DiaSerie {
   vendidoUsd: Centavos
 }
 
+export type Moneda = 'USD' | 'VES'
+
+export interface Denominacion {
+  id: number
+  moneda: Moneda
+  valor: number
+  activa: boolean
+  orden: number
+}
+
+export type EstadoArqueo = 'borrador' | 'cerrado'
+
+export interface Arqueo {
+  id: string
+  unidadNegocio: UnidadNegocio
+  fecha: string
+  estado: EstadoArqueo
+  fondoInicialUsd: Centavos
+  contadoVes: number
+  contadoUsd: Centavos
+  esperadoVes: number | null
+  esperadoUsd: Centavos | null
+  diferenciaVes: number | null
+  diferenciaUsd: Centavos | null
+  tasaAplicada: number | null
+  nota: string | null
+  usuarioId: string
+  cerradoEn: string | null
+  cerradoPor: string | null
+  creadoEn: string
+}
+
+export interface ArqueoDetalleFila {
+  denominacionId: number
+  cantidad: number
+}
+
 export interface ResumenDia {
   vendidoHoyUsd: Centavos
   numeroVentas: number

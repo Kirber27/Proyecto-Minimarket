@@ -2,7 +2,8 @@
 
 ## Esquema
 
-`supabase/migrations/0009_arqueo.sql`:
+`supabase/migrations/0012_arqueo.sql` (numerado por orden real de aplicación,
+no por número de spec):
 
 ```sql
 create table public.denominacion (
@@ -73,28 +74,47 @@ create trigger arqueo_inmutable before update or delete on public.arqueo
   for each row execute function public.impedir_editar_arqueo_cerrado();
 ```
 
+**El cierre no es un `UPDATE` desde el cliente con RLS por rol.** La RLS de
+escritura solo permite tocar filas con `estado = 'borrador'` (para cualquier
+rol: contar es tarea de mostrador). Pasar a `'cerrado'` solo ocurre dentro de
+`cerrar_arqueo()`, `security definer`, que primero valida `rol_actual() =
+'dueno'` — mismo patrón que `anular_venta`/`anular_egreso`. Así "solo el
+dueño cierra" es una propiedad de la función, no de una política de RLS que
+alguien podría aflojar sin darse cuenta.
+
 ## Efectivo esperado
 
 ```sql
 create or replace function public.efectivo_esperado(
-  p_negocio unidad_negocio, p_fecha date
+  p_negocio unidad_negocio, p_desde timestamptz, p_hasta timestamptz
 ) returns table (moneda moneda, monto_usd numeric)
 language sql stable as $$
   select
     case when mc.metodo = 'efectivo-usd' then 'USD'::moneda else 'VES'::moneda end,
     sum(case when mc.flujo = 'ingreso' then mc.monto_usd else -mc.monto_usd end)
   from public.movimiento_caja mc
-  join public.metodo_pago mp on mp.id = mc.metodo
   where mc.unidad_negocio = p_negocio
-    and mc.creado_en::date = p_fecha
-    and mp.afecta_arqueo                    -- requisito 2.8
+    and mc.creado_en >= p_desde and mc.creado_en < p_hasta
+    and mc.metodo in ('efectivo-ves', 'efectivo-usd')   -- requisito 2.8
   group by 1;
 $$;
 ```
 
-El filtro por `afecta_arqueo` es la clave del requisito 2.8: Punto, Pago móvil y
-Biopago mueven dinero real, pero ese dinero está en una cuenta bancaria, no en la
-gaveta. Incluirlos en el esperado daría un faltante enorme todos los días.
+Dos diferencias con el esquema de arriba:
+
+**Sin `public.metodo_pago`.** Ese catálogo no es una tabla en esta base — son 6
+métodos fijos que nunca cambian (ver `src/lib/metodosPago.ts`, spec 08) — así
+que el filtro por `afecta_arqueo` se hace listando los dos métodos de efectivo
+directamente, en vez de un `join`. Es la clave del requisito 2.8: Punto, Pago
+móvil y Biopago mueven dinero real, pero ese dinero está en una cuenta
+bancaria, no en la gaveta. Incluirlos en el esperado daría un faltante enorme
+todos los días.
+
+**`p_desde`/`p_hasta`, no `p_fecha`.** Igual que `resumen_dia` (spec 08): "el
+día" es medianoche local del dispositivo, no `mc.creado_en::date` en la
+zona horaria del servidor (Supabase hospedado corre en UTC). El cliente
+calcula el rango y lo pasa explícito, tanto para la vista previa en vivo como
+para `cerrar_arqueo`.
 
 Al esperado en bolívares se le suma el fondo inicial convertido a la tasa del
 arqueo (requisito 4.2).

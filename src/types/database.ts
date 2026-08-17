@@ -39,6 +39,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      arqueo: {
+        Row: {
+          cerrado_en: string | null
+          cerrado_por: string | null
+          contado_usd: number
+          contado_ves: number
+          creado_en: string
+          diferencia_usd: number | null
+          diferencia_ves: number | null
+          esperado_usd: number | null
+          esperado_ves: number | null
+          estado: string
+          fecha: string
+          fondo_inicial_usd: number
+          id: string
+          nota: string | null
+          tasa_aplicada: number | null
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+        }
+        Insert: {
+          cerrado_en?: string | null
+          cerrado_por?: string | null
+          contado_usd?: number
+          contado_ves?: number
+          creado_en?: string
+          diferencia_usd?: number | null
+          diferencia_ves?: number | null
+          esperado_usd?: number | null
+          esperado_ves?: number | null
+          estado?: string
+          fecha: string
+          fondo_inicial_usd?: number
+          id?: string
+          nota?: string | null
+          tasa_aplicada?: number | null
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+        }
+        Update: {
+          cerrado_en?: string | null
+          cerrado_por?: string | null
+          contado_usd?: number
+          contado_ves?: number
+          creado_en?: string
+          diferencia_usd?: number | null
+          diferencia_ves?: number | null
+          esperado_usd?: number | null
+          esperado_ves?: number | null
+          estado?: string
+          fecha?: string
+          fondo_inicial_usd?: number
+          id?: string
+          nota?: string | null
+          tasa_aplicada?: number | null
+          unidad_negocio?: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arqueo_cerrado_por_fkey"
+            columns: ["cerrado_por"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "arqueo_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      arqueo_detalle: {
+        Row: {
+          arqueo_id: string
+          cantidad: number
+          denominacion_id: number
+          id: number
+        }
+        Insert: {
+          arqueo_id: string
+          cantidad: number
+          denominacion_id: number
+          id?: number
+        }
+        Update: {
+          arqueo_id?: string
+          cantidad?: number
+          denominacion_id?: number
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arqueo_detalle_arqueo_id_fkey"
+            columns: ["arqueo_id"]
+            isOneToOne: false
+            referencedRelation: "arqueo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "arqueo_detalle_denominacion_id_fkey"
+            columns: ["denominacion_id"]
+            isOneToOne: false
+            referencedRelation: "denominacion"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categoria: {
         Row: {
           activo: boolean
@@ -99,6 +210,30 @@ export type Database = {
           nota?: string | null
           origen?: string | null
           telefono?: string | null
+        }
+        Relationships: []
+      }
+      denominacion: {
+        Row: {
+          activa: boolean
+          id: number
+          moneda: Database["public"]["Enums"]["moneda"]
+          orden: number
+          valor: number
+        }
+        Insert: {
+          activa?: boolean
+          id?: number
+          moneda: Database["public"]["Enums"]["moneda"]
+          orden: number
+          valor: number
+        }
+        Update: {
+          activa?: boolean
+          id?: number
+          moneda?: Database["public"]["Enums"]["moneda"]
+          orden?: number
+          valor?: number
         }
         Relationships: []
       }
@@ -390,18 +525,21 @@ export type Database = {
           creado_en: string
           id: Database["public"]["Enums"]["unidad_negocio"]
           nombre: string
+          umbral_diferencia_usd: number
         }
         Insert: {
           activo?: boolean
           creado_en?: string
           id: Database["public"]["Enums"]["unidad_negocio"]
           nombre: string
+          umbral_diferencia_usd?: number
         }
         Update: {
           activo?: boolean
           creado_en?: string
           id?: Database["public"]["Enums"]["unidad_negocio"]
           nombre?: string
+          umbral_diferencia_usd?: number
         }
         Relationships: []
       }
@@ -853,6 +991,40 @@ export type Database = {
         }
         Returns: number
       }
+      cerrar_arqueo: {
+        Args: {
+          p_arqueo_id: string
+          p_desde_dia: string
+          p_hasta_dia: string
+          p_monto_retiro?: number
+          p_nota?: string
+        }
+        Returns: {
+          cerrado_en: string | null
+          cerrado_por: string | null
+          contado_usd: number
+          contado_ves: number
+          creado_en: string
+          diferencia_usd: number | null
+          diferencia_ves: number | null
+          esperado_usd: number | null
+          esperado_ves: number | null
+          estado: string
+          fecha: string
+          fondo_inicial_usd: number
+          id: string
+          nota: string | null
+          tasa_aplicada: number | null
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          usuario_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "arqueo"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       crear_venta: {
         Args: {
           p_cliente_id?: string
@@ -887,6 +1059,17 @@ export type Database = {
       }
       definir_pin: { Args: { p_pin: string }; Returns: undefined }
       descartar_revision: { Args: { p_id: number }; Returns: undefined }
+      efectivo_esperado: {
+        Args: {
+          p_desde: string
+          p_hasta: string
+          p_negocio: Database["public"]["Enums"]["unidad_negocio"]
+        }
+        Returns: {
+          moneda: Database["public"]["Enums"]["moneda"]
+          monto_usd: number
+        }[]
+      }
       normalizar: { Args: { t: string }; Returns: string }
       registrar_abono: {
         Args: {

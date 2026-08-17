@@ -1,18 +1,51 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import { useSesionStore } from '@/stores/sesion'
+import { useCatalogoStore } from '@/stores/catalogo'
 import { definirPin } from '@/services/authService'
 import * as inventarioService from '@/services/inventarioService'
+import * as arqueoService from '@/services/arqueoService'
 import { marcarPinDefinido, tieneModoPinDisponible } from '@/composables/useDispositivo'
 import { notificar } from '@/composables/useNotificaciones'
 import { ErrorDominio } from '@/lib/errorDominio'
 import BotonSecundario from '@/components/ui/BotonSecundario.vue'
+import CampoNumero from '@/components/ui/CampoNumero.vue'
 import TecladoPin from '@/components/auth/TecladoPin.vue'
 
 const sesion = useSesionStore()
+const catalogo = useCatalogoStore()
 const router = useRouter()
+
+// Umbral de diferencia del arqueo (requisito 2.6 del spec 09).
+const umbralDiferencia = ref<number | null>(1)
+const guardandoUmbral = ref(false)
+
+onMounted(async () => {
+  if (!sesion.esDueno) return
+  try {
+    umbralDiferencia.value = await arqueoService.obtenerUmbral(catalogo.negocio)
+  } catch {
+    // se queda con el valor por defecto si falla
+  }
+})
+
+async function guardarUmbral(): Promise<void> {
+  if (umbralDiferencia.value === null || umbralDiferencia.value < 0) {
+    notificar('El umbral debe ser un monto válido.')
+    return
+  }
+  guardandoUmbral.value = true
+  try {
+    await arqueoService.actualizarUmbral(catalogo.negocio, umbralDiferencia.value)
+    notificar('Umbral actualizado')
+  } catch (err) {
+    notificar(err instanceof ErrorDominio ? err.message : 'No se pudo guardar el umbral.')
+  } finally {
+    guardandoUmbral.value = false
+  }
+}
 
 const pinListo = ref(tieneModoPinDisponible())
 
@@ -146,6 +179,22 @@ async function cerrarSesion(): Promise<void> {
           {{ d.sumaMovimientos }}
         </li>
       </ul>
+    </section>
+
+    <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
+      <h2 class="mm-ajustes__titulo">Arqueo de caja</h2>
+      <p class="mm-ajustes__ayuda">
+        Diferencia a partir de la cual el cierre de caja exige escribir una nota.
+      </p>
+      <CampoNumero
+        v-model="umbralDiferencia"
+        etiqueta="Umbral (USD)"
+        :step="0.5"
+        :min="0"
+      />
+      <BotonSecundario :cargando="guardandoUmbral" @click="guardarUmbral">
+        Guardar umbral
+      </BotonSecundario>
     </section>
 
     <section class="mm-ajustes__seccion">
