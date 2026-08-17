@@ -125,12 +125,16 @@ async function cerrarSesion(): Promise<void> {
 .mm-layout-escritorio {
   display: grid;
   grid-template-columns: 240px 1fr;
-  min-height: 100vh;
+  // Alto fijo al viewport, no minimo: asi el scroll queda contenido en el
+  // panel de la derecha y la barra lateral nunca crece con el contenido
+  // (el pie con "Salir" se queda siempre a la vista, sin scroll).
+  height: 100vh;
 }
 
 .mm-layout-escritorio__barra {
   display: flex;
   flex-direction: column;
+  height: 100vh;
   padding: 22px 14px;
   background-color: v.$fondo;
   border-right: 1px solid v.$borde;
@@ -180,6 +184,10 @@ async function cerrarSesion(): Promise<void> {
   flex-direction: column;
   gap: 2px;
   flex: 1;
+  // min-height:0 deja que este item de flex se encoja y scrollee en vez de
+  // empujar el pie de usuario fuera de la barra cuando hay muchos destinos.
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .mm-layout-escritorio__destino {
@@ -291,6 +299,7 @@ async function cerrarSesion(): Promise<void> {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100vh;
 }
 
 .mm-layout-escritorio__cabecera {
@@ -300,6 +309,7 @@ async function cerrarSesion(): Promise<void> {
   gap: 16px;
   padding: 20px 32px;
   border-bottom: 1px solid v.$borde;
+  flex-shrink: 0;
 }
 
 .mm-layout-escritorio__titulo {
@@ -340,6 +350,9 @@ async function cerrarSesion(): Promise<void> {
 }
 
 .mm-layout-escritorio__contenido {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: 24px 32px 32px;
 }
 </style>

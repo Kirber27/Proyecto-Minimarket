@@ -170,24 +170,42 @@ async function confirmarReasignacion(): Promise<void> {
         :key="categoria.id"
         class="mm-categorias__fila"
       >
-        <CajaIniciales :nombre="categoria.nombre" :matiz="categoria.matiz" :tamano="34" />
-        <ChipCategoria :nombre="categoria.nombre" :matiz="categoria.matiz" />
+        <div class="mm-categorias__info">
+          <CajaIniciales
+            :nombre="categoria.nombre"
+            :matiz="categoria.matiz"
+            :tamano="34"
+          />
+          <ChipCategoria :nombre="categoria.nombre" :matiz="categoria.matiz" />
 
-        <template v-if="editandoId === categoria.id">
-          <CampoTexto v-model="nombreEditado" etiqueta="Nombre" :error="errorEdicion" />
-          <BotonSecundario @click="guardarEdicion(categoria)">Guardar</BotonSecundario>
-          <BotonSecundario @click="editandoId = null">Cancelar</BotonSecundario>
-        </template>
-        <template v-else>
-          <span class="mm-categorias__conteo">
-            {{ conteos[categoria.id] ?? 0 }} producto(s)
-          </span>
-          <span v-if="!categoria.activo" class="mm-categorias__inactiva">Inactiva</span>
-          <BotonSecundario @click="empezarEdicion(categoria)">Renombrar</BotonSecundario>
-          <BotonSecundario v-if="categoria.activo" @click="pedirDesactivar(categoria)">
-            Desactivar
-          </BotonSecundario>
-        </template>
+          <CampoTexto
+            v-if="editandoId === categoria.id"
+            v-model="nombreEditado"
+            etiqueta="Nombre"
+            :error="errorEdicion"
+          />
+          <template v-else>
+            <span class="mm-categorias__conteo">
+              {{ conteos[categoria.id] ?? 0 }} producto(s)
+            </span>
+            <span v-if="!categoria.activo" class="mm-categorias__inactiva">Inactiva</span>
+          </template>
+        </div>
+
+        <div class="mm-categorias__acciones">
+          <template v-if="editandoId === categoria.id">
+            <BotonSecundario @click="guardarEdicion(categoria)">Guardar</BotonSecundario>
+            <BotonSecundario @click="editandoId = null">Cancelar</BotonSecundario>
+          </template>
+          <template v-else>
+            <BotonSecundario @click="empezarEdicion(categoria)"
+              >Renombrar</BotonSecundario
+            >
+            <BotonSecundario v-if="categoria.activo" @click="pedirDesactivar(categoria)">
+              Desactivar
+            </BotonSecundario>
+          </template>
+        </div>
       </li>
     </ul>
 
@@ -262,6 +280,25 @@ async function confirmarReasignacion(): Promise<void> {
   padding: 10px 12px;
   border-bottom: 1px solid v.$borde;
   flex-wrap: wrap;
+}
+
+.mm-categorias__info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.mm-categorias__acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  // Empuja las acciones al final de la fila sin importar cuanto ocupe el
+  // resto (nombre, chip, conteo): estructura mas ordenada y predecible.
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .mm-categorias__conteo {

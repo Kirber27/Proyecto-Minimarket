@@ -19,8 +19,8 @@ $acento-suave:  oklch(97.5% 0.015 275);
 $acento-tenue:  oklch(88% 0.045 275);  // barras inactivas del grafico de ventas
 $tinta:         oklch(20% 0.015 265);  // texto principal
 $tenue:         oklch(52% 0.015 265);  // texto secundario
-$fondo:         #F1F2F4;               // fondo de la app
-$superficie:    #FFFFFF;               // tarjetas
+$fondo:         #F1F2F4;               // superficie secundaria: sidebar de escritorio, botones "quietos"
+$superficie:    #FFFFFF;               // fondo del body y tarjetas
 $borde:         rgba(20, 22, 30, 0.08);
 ```
 

@@ -290,19 +290,40 @@ async function alCambiarCliente(): Promise<void> {
   cursor: pointer;
 }
 
+// 2 columnas en movil, subiendo a 6 en escritorio ancho (xl) en vez de una
+// lista vertical: los deudores son tarjetas chicas, no filas con vineta.
 .mm-deudas__lista {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .mm-deudas__lista {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .mm-deudas__lista {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .mm-deudas__lista {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 .mm-deudas__cliente {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   width: 100%;
-  min-height: v.$objetivo-tactil-min;
-  padding: 10px 14px;
+  min-height: 74px;
+  padding: 12px 14px;
   border: 1px solid v.$borde;
   border-left: 4px solid transparent;
   border-radius: v.$radio-md;
@@ -320,7 +341,12 @@ async function alCambiarCliente(): Promise<void> {
 }
 
 .mm-deudas__cliente-nombre {
+  width: 100%;
   font-weight: v.$peso-semi;
   color: v.$tinta;
+  font-size: v.$tam-etiqueta;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

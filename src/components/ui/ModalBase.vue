@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useId } from 'vue'
+import { ref, useId } from 'vue'
+
+import { useTrampaFoco } from '@/composables/useTrampaFoco'
 
 const props = defineProps<{
   titulo: string
@@ -11,49 +13,8 @@ const emit = defineEmits<{
 
 const idTitulo = useId()
 const refPanel = ref<HTMLElement | null>(null)
-let elementoConFocoPrevio: HTMLElement | null = null
 
-function seleccionarFocables(): HTMLElement[] {
-  if (!refPanel.value) return []
-  return Array.from(
-    refPanel.value.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
-    ),
-  )
-}
-
-function alPresionarTecla(evento: KeyboardEvent): void {
-  if (evento.key === 'Escape') {
-    emit('cerrar')
-    return
-  }
-  if (evento.key !== 'Tab') return
-
-  const focables = seleccionarFocables()
-  if (focables.length === 0) return
-
-  const primero = focables[0]!
-  const ultimo = focables[focables.length - 1]!
-
-  if (evento.shiftKey && document.activeElement === primero) {
-    evento.preventDefault()
-    ultimo.focus()
-  } else if (!evento.shiftKey && document.activeElement === ultimo) {
-    evento.preventDefault()
-    primero.focus()
-  }
-}
-
-onMounted(() => {
-  elementoConFocoPrevio = document.activeElement as HTMLElement | null
-  document.addEventListener('keydown', alPresionarTecla)
-  seleccionarFocables()[0]?.focus()
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', alPresionarTecla)
-  elementoConFocoPrevio?.focus()
-})
+useTrampaFoco(refPanel, () => emit('cerrar'))
 </script>
 
 <template>

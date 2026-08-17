@@ -203,8 +203,24 @@ async function alAnularVenta(): Promise<void> {
       <span class="mm-resumen__ver">Revisar</span>
     </RouterLink>
 
+    <div class="mm-resumen__panel mm-resumen__accesos">
+      <span class="mm-resumen__etiqueta-panel">Accesos rápidos</span>
+      <div class="mm-resumen__accesos-grilla">
+        <RouterLink to="/venta" class="mm-resumen__accion mm-resumen__accion--principal">
+          Registrar venta
+        </RouterLink>
+        <RouterLink v-if="sesion.esDueno" to="/productos" class="mm-resumen__accion">
+          Agregar producto
+        </RouterLink>
+        <RouterLink to="/caja" class="mm-resumen__accion">Registrar egreso</RouterLink>
+        <RouterLink v-if="sesion.esDueno" to="/reportes" class="mm-resumen__accion">
+          Ver reportes
+        </RouterLink>
+      </div>
+    </div>
+
     <div class="mm-resumen__cuerpo-escritorio">
-      <div class="mm-resumen__panel">
+      <div class="mm-resumen__panel mm-resumen__panel--grafico">
         <div class="mm-resumen__panel-cabecera">
           <span class="mm-resumen__etiqueta-panel">Últimos 7 días</span>
           <span class="mm-resumen__prom"
@@ -283,25 +299,6 @@ async function alAnularVenta(): Promise<void> {
           </li>
         </ul>
       </div>
-
-      <div class="mm-resumen__panel mm-resumen__accesos">
-        <span class="mm-resumen__etiqueta-panel">Accesos rápidos</span>
-        <div class="mm-resumen__accesos-grilla">
-          <RouterLink
-            to="/venta"
-            class="mm-resumen__accion mm-resumen__accion--principal"
-          >
-            Registrar venta
-          </RouterLink>
-          <RouterLink v-if="sesion.esDueno" to="/productos" class="mm-resumen__accion">
-            Agregar producto
-          </RouterLink>
-          <RouterLink to="/caja" class="mm-resumen__accion">Registrar egreso</RouterLink>
-          <RouterLink v-if="sesion.esDueno" to="/reportes" class="mm-resumen__accion">
-            Ver reportes
-          </RouterLink>
-        </div>
-      </div>
     </div>
 
     <VentaDetalle
@@ -375,6 +372,14 @@ async function alAnularVenta(): Promise<void> {
     background-color: v.$acento;
     border-color: v.$acento;
     color: white;
+
+    // PrecioDoble trae su propio color (tinta/tenue) con estilos scoped al
+    // componente; en esta tarjeta morada toda la tipografia debe ser
+    // blanca, asi que se sobreescribe desde afuera con :deep().
+    :deep(.mm-precio-doble__principal),
+    :deep(.mm-precio-doble__secundario) {
+      color: white;
+    }
   }
 
   &--alerta {
@@ -390,7 +395,7 @@ async function alAnularVenta(): Promise<void> {
   color: v.$tenue;
 
   .mm-resumen__tarjeta--acento & {
-    color: rgba(255, 255, 255, 0.8);
+    color: white;
   }
 
   &--alerta {
@@ -403,7 +408,7 @@ async function alAnularVenta(): Promise<void> {
   color: v.$tenue;
 
   .mm-resumen__tarjeta--acento & {
-    color: rgba(255, 255, 255, 0.8);
+    color: white;
   }
 
   &--arriba {
@@ -663,6 +668,20 @@ async function alAnularVenta(): Promise<void> {
     display: grid;
     grid-template-columns: 1.55fr 1fr;
     gap: 18px;
+    // Grid estira ambos paneles a la altura de la fila; el panel del
+    // grafico necesita ser flex para que las barras aprovechen ese alto
+    // en vez de quedarse en los 110px fijos de movil.
+    align-items: stretch;
+  }
+
+  .mm-resumen__panel--grafico {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mm-resumen__panel--grafico .mm-resumen__grafico {
+    flex: 1;
+    height: auto;
   }
 }
 </style>

@@ -47,7 +47,7 @@ html {
 body {
   min-height: 100%;
   font-family: v.$fuente-base;
-  background-color: v.$fondo;
+  background-color: v.$superficie;
   color: v.$tinta;
 }
 
@@ -60,4 +60,13 @@ body {
 :focus-visible {
   outline: 2px solid v.$acento;
   outline-offset: 2px;
+}
+
+// _bootstrap.scss no importa scss/_type.scss (headings/blockquotes que no
+// usamos), pero de ahi sale .list-unstyled — la clase que ya se usa en toda
+// la app para quitar vinetas de <ul>. Se redefine aqui, sola, para no
+// arrastrar el resto de ese archivo.
+.list-unstyled {
+  padding-left: 0;
+  list-style: none;
 }

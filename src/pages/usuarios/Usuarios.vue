@@ -8,6 +8,7 @@ import {
   listarUsuarios,
 } from '@/services/usuariosService'
 import { notificar } from '@/composables/useNotificaciones'
+import { useEsMovil } from '@/composables/useEsMovil'
 import { ErrorDominio } from '@/lib/errorDominio'
 import { esCorreoValido } from '@/lib/validacion'
 import type { Perfil, RolUsuario } from '@/types/dominio'
@@ -16,6 +17,8 @@ import BotonSecundario from '@/components/ui/BotonSecundario.vue'
 import CampoTexto from '@/components/ui/CampoTexto.vue'
 import EstadoVacio from '@/components/ui/EstadoVacio.vue'
 import ModalBase from '@/components/ui/ModalBase.vue'
+
+const esMovil = useEsMovil()
 
 const usuarios = ref<Perfil[]>([])
 const cargando = ref(true)
@@ -108,6 +111,31 @@ async function desactivar(usuario: Perfil): Promise<void> {
       titulo="Todavía no hay usuarios"
     />
 
+    <ul v-else-if="esMovil" class="mm-usuarios__lista list-unstyled">
+      <li v-for="usuario in usuarios" :key="usuario.id" class="mm-usuarios__card">
+        <div class="mm-usuarios__card-info">
+          <span class="mm-usuarios__card-nombre">{{ usuario.nombre }}</span>
+          <div class="mm-usuarios__card-meta">
+            <span>{{ usuario.rol === 'dueno' ? 'Dueño' : 'Mostrador' }}</span>
+            <span
+              class="mm-usuarios__card-estado"
+              :class="{ 'mm-usuarios__card-estado--inactivo': !usuario.activo }"
+            >
+              {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        </div>
+        <div class="mm-usuarios__card-acciones">
+          <BotonSecundario @click="alternarRol(usuario)">
+            Hacer {{ usuario.rol === 'dueno' ? 'mostrador' : 'dueño' }}
+          </BotonSecundario>
+          <BotonSecundario v-if="usuario.activo" @click="desactivar(usuario)">
+            Desactivar
+          </BotonSecundario>
+        </div>
+      </li>
+    </ul>
+
     <table v-else-if="!cargando" class="mm-usuarios__tabla">
       <thead>
         <tr>
@@ -181,6 +209,52 @@ async function desactivar(usuario: Perfil): Promise<void> {
 
 .mm-usuarios__acciones {
   display: flex;
+  gap: 8px;
+}
+
+.mm-usuarios__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mm-usuarios__card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid v.$borde;
+  border-radius: v.$radio-md;
+  background-color: v.$superficie;
+}
+
+.mm-usuarios__card-nombre {
+  display: block;
+  font-weight: v.$peso-semi;
+  color: v.$tinta;
+  margin-bottom: 4px;
+}
+
+.mm-usuarios__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: v.$tam-etiqueta;
+  color: v.$tenue;
+}
+
+.mm-usuarios__card-estado {
+  font-weight: v.$peso-semi;
+  color: v.$ok;
+
+  &--inactivo {
+    color: v.$error;
+  }
+}
+
+.mm-usuarios__card-acciones {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 

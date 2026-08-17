@@ -12,22 +12,18 @@ const OPCIONES: { valor: UnidadNegocio; etiqueta: string }[] = [
 </script>
 
 <template>
-  <label class="mm-selector-negocio">
-    <span class="visually-hidden">Unidad de negocio</span>
-    <select
-      class="mm-selector-negocio__select"
-      :value="catalogo.negocio"
-      @change="
-        catalogo.cambiarNegocio(
-          ($event.target as HTMLSelectElement).value as UnidadNegocio,
-        )
-      "
-    >
-      <option v-for="opcion in OPCIONES" :key="opcion.valor" :value="opcion.valor">
-        {{ opcion.etiqueta }}
-      </option>
-    </select>
-  </label>
+  <select
+    class="mm-selector-negocio__select"
+    aria-label="Unidad de negocio"
+    :value="catalogo.negocio"
+    @change="
+      catalogo.cambiarNegocio(($event.target as HTMLSelectElement).value as UnidadNegocio)
+    "
+  >
+    <option v-for="opcion in OPCIONES" :key="opcion.valor" :value="opcion.valor">
+      {{ opcion.etiqueta }}
+    </option>
+  </select>
 </template>
 
 <style scoped lang="scss">

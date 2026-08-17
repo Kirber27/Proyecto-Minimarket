@@ -4,23 +4,52 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { useSesionStore } from '@/stores/sesion'
 import { useCatalogoStore } from '@/stores/catalogo'
+import { useTasaStore } from '@/stores/tasa'
 import { definirPin } from '@/services/authService'
 import * as inventarioService from '@/services/inventarioService'
 import * as arqueoService from '@/services/arqueoService'
 import { marcarPinDefinido, tieneModoPinDisponible } from '@/composables/useDispositivo'
 import { notificar } from '@/composables/useNotificaciones'
 import { ErrorDominio } from '@/lib/errorDominio'
+import { formatearBs } from '@/lib/money'
+import { formatearFechaHora } from '@/lib/fechas'
 import BotonSecundario from '@/components/ui/BotonSecundario.vue'
 import CampoNumero from '@/components/ui/CampoNumero.vue'
 import TecladoPin from '@/components/auth/TecladoPin.vue'
 
 const sesion = useSesionStore()
 const catalogo = useCatalogoStore()
+const tasa = useTasaStore()
 const router = useRouter()
 
 // Umbral de diferencia del arqueo (requisito 2.6 del spec 09).
 const umbralDiferencia = ref<number | null>(1)
 const guardandoUmbral = ref(false)
+
+// Tasa de cambio (spec 04): tasa_cambio es de solo-insercion, asi que
+// "cambiarla" es registrar una fila nueva con vigente_desde posterior.
+const tasaNueva = ref<number | null>(null)
+const guardandoTasa = ref(false)
+const errorTasa = ref('')
+
+async function guardarTasa(): Promise<void> {
+  errorTasa.value = ''
+  if (tasaNueva.value === null || tasaNueva.value <= 0) {
+    errorTasa.value = 'Ingresa un valor de tasa válido.'
+    return
+  }
+  guardandoTasa.value = true
+  try {
+    await tasa.registrar(tasaNueva.value)
+    tasaNueva.value = null
+    notificar('Tasa de cambio actualizada')
+  } catch (err) {
+    errorTasa.value =
+      err instanceof ErrorDominio ? err.message : 'No se pudo actualizar la tasa.'
+  } finally {
+    guardandoTasa.value = false
+  }
+}
 
 onMounted(async () => {
   if (!sesion.esDueno) return
@@ -29,6 +58,7 @@ onMounted(async () => {
   } catch {
     // se queda con el valor por defecto si falla
   }
+  await tasa.cargar()
 })
 
 async function guardarUmbral(): Promise<void> {
@@ -182,6 +212,33 @@ async function cerrarSesion(): Promise<void> {
     </section>
 
     <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
+      <h2 class="mm-ajustes__titulo">Tasa de cambio</h2>
+      <p class="mm-ajustes__ayuda">
+        Valor de referencia para convertir dólares a bolívares en toda la app. Cambia
+        seguido, así que actualízala aquí cuando corresponda.
+      </p>
+
+      <p v-if="tasa.disponible" class="mm-ajustes__tasa-actual">
+        Vigente: 1 USD = {{ formatearBs(tasa.valor!) }}
+        <span class="mm-ajustes__tasa-fecha">
+          desde {{ formatearFechaHora(new Date(tasa.vigente!.vigenteDesde)) }}
+        </span>
+      </p>
+      <p v-else class="mm-ajustes__tasa-vacia">Todavía no hay una tasa registrada.</p>
+
+      <CampoNumero
+        v-model="tasaNueva"
+        etiqueta="Nueva tasa (Bs. por USD)"
+        :step="0.01"
+        :min="0"
+      />
+      <p v-if="errorTasa" class="mm-ajustes__error" role="alert">{{ errorTasa }}</p>
+      <BotonSecundario :cargando="guardandoTasa" @click="guardarTasa">
+        Actualizar tasa
+      </BotonSecundario>
+    </section>
+
+    <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
       <h2 class="mm-ajustes__titulo">Arqueo de caja</h2>
       <p class="mm-ajustes__ayuda">
         Diferencia a partir de la cual el cierre de caja exige escribir una nota.
@@ -267,6 +324,22 @@ async function cerrarSesion(): Promise<void> {
   font-size: v.$tam-etiqueta;
   margin: 0;
   padding-left: 20px;
+}
+
+.mm-ajustes__tasa-actual {
+  margin: 0;
+  font-weight: v.$peso-semi;
+  color: v.$tinta;
+}
+
+.mm-ajustes__tasa-fecha {
+  font-weight: v.$peso-medio;
+  color: v.$tenue;
+}
+
+.mm-ajustes__tasa-vacia {
+  margin: 0;
+  color: v.$tenue;
 }
 
 .mm-ajustes__enlace {
