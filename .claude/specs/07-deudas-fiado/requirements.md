@@ -72,8 +72,10 @@ planilla, porque ahí están escritas a mano y no siempre entiendo el monto.
 1. El sistema DEBE importar los 42 clientes de la hoja `DEUDAS 2026`.
 2. El sistema NO DEBE intentar interpretar automáticamente las notas de texto
    libre. Adivinar un saldo de fiado es peor que preguntar.
-3. Los 13 registros con contenido DEBEN quedar marcados como pendientes de
-   revisión, conservando el texto original.
+3. De los 13 registros con contenido, los 6 que son texto libre (no un número
+   simple) DEBEN quedar marcados como pendientes de revisión, conservando el
+   texto original. Los otros 7 son montos simples cuya columna de origen ya
+   resuelve la moneda sin ambigüedad, y entran directo como deuda confirmada.
 4. El sistema DEBE ofrecer una bandeja de revisión donde el dueño ve la nota
    original y captura el monto confirmado.
 5. CUANDO el dueño confirma un monto, ENTONCES el sistema DEBE crear el

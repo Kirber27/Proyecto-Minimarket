@@ -60,8 +60,41 @@ export interface Cliente {
   id: string
   nombre: string
   telefono: string | null
+  nota: string | null
   activo: boolean
+  /** Saldo consolidado (todas las unidades de negocio). */
   saldoUsd?: Centavos
+  /** Saldo separado por unidad de negocio (requisito 4.6). */
+  saldosPorNegocio?: Partial<Record<UnidadNegocio, Centavos>>
+  deudaMasAntigua?: string | null
+}
+
+export type TipoMovimientoDeuda = 'deuda' | 'abono' | 'ajuste'
+
+export interface DeudaMovimiento {
+  id: number
+  clienteId: string
+  unidadNegocio: UnidadNegocio
+  tipo: TipoMovimientoDeuda
+  montoUsd: Centavos
+  tasaAplicada: number
+  metodo: MetodoPago | null
+  ventaId: string | null
+  nota: string | null
+  anulado: boolean
+  anuladoMotivo: string | null
+  creadoEn: string
+}
+
+export interface DeudaPorRevisar {
+  id: number
+  clienteId: string
+  clienteNombre?: string
+  unidadNegocio: UnidadNegocio
+  notaOriginal: string
+  resuelto: boolean
+  origen: string
+  creadoEn: string
 }
 
 export interface LineaVenta {

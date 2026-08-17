@@ -2,7 +2,13 @@
 
 ## Esquema
 
-`supabase/migrations/0007_deudas.sql`:
+La base mínima (`cliente`, `deuda_movimiento`, `cliente_saldo`, `registrar_deuda`) se
+adelantó como dependencia real del punto de venta, en
+`supabase/migrations/0005_clientes_deudas_base.sql` y `0006_ventas.sql` (mismo
+patrón que la tasa con el spec 04). Lo que sigue — `deuda_por_revisar`, los
+abonos y su anulación, y el permiso de escritura de clientes para ambos roles —
+se completó en `0009_deudas.sql`, y `registrar_deuda_manual` (deuda sin venta,
+que `registrar_deuda` no cubre) en `0010_deuda_manual.sql`:
 
 ```sql
 create type tipo_movimiento_deuda as enum ('deuda','abono','ajuste');
@@ -150,9 +156,13 @@ y `"1flipgd"` es un producto cuyo precio hay que buscar. Una suma parcial
 presentada como sugerencia se aceptaría sin revisar y quedaría mal para siempre.
 El dueño es el único que sabe qué dice esa nota.
 
-Los dos casos numéricos (`JOSEFINA: 7420`, `BERNARDA: 2800`) también entran a
-revisión: son números sin unidad, y a la tasa de 800 podrían ser `7.420 Bs.`
-(≈ $9,28) o `$7.420`. La diferencia es de tres órdenes de magnitud.
+Los casos numéricos simples (`JOSEFINA: 7420`, `BERNARDA: 2800`, y 5 más) **no**
+entran a revisión: `DEUDAS 2026` tiene una columna por moneda/unidad de negocio
+(columna `C` = bodega en Bs., `E` = bodega en USD, `F` = cerveza en Bs., `G` =
+thais en USD), así que la columna de origen ya resuelve la moneda sin
+ambigüedad — `mock/extract_excel.py` la lee de ahí, no la adivina. Solo los 6
+registros de texto libre (`"4,5+1,80+1refres pq"`) van a la bandeja, porque esos
+sí mezclan montos y productos en una misma celda.
 
 ## Interfaz
 

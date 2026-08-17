@@ -118,10 +118,98 @@ def generar_tasa(tasas):
     )
 
 
+def generar_clientes(clientes):
+    filas = []
+    for c in clientes:
+        filas.append(
+            "  ({nombre}, {telefono}, {origen})".format(
+                nombre=sql_str(c["nombre"]),
+                telefono=sql_str(c.get("telefono")),
+                origen=sql_str(c["origen"]),
+            )
+        )
+    return (
+        "insert into public.cliente (nombre, telefono, origen) values\n"
+        + ",\n".join(filas)
+        # cliente_origen_uidx es parcial (where origen is not null): el
+        # predicado tiene que repetirse aqui para que ON CONFLICT lo infiera.
+        + "\non conflict (origen) where origen is not null do update set\n"
+        "  nombre = excluded.nombre,\n"
+        "  telefono = excluded.telefono;"
+    )
+
+
+def generar_deudas(deudas):
+    """`deuda_movimiento` no tiene columna `origen` (no esta en el diseno del
+    spec 07): la idempotencia del seed se resuelve buscando la nota exacta
+    con `not exists`, mismo patron que el backfill de movimiento_stock en
+    0007_inventario.sql."""
+    confirmadas = []
+    por_revisar = []
+
+    for d in deudas:
+        origen = d["origen"]
+        negocio = d["unidad_negocio"]
+
+        if d["requiere_revision"]:
+            por_revisar.append(
+                "insert into public.deuda_por_revisar\n"
+                "  (cliente_id, unidad_negocio, nota_original, origen)\n"
+                "select (select id from public.cliente where origen = {origen_cli}),\n"
+                "  {negocio}::unidad_negocio, {nota}, {origen}\n"
+                "on conflict (origen) do nothing;".format(
+                    origen_cli=sql_str(_origen_cliente(d["cliente_id"])),
+                    negocio=sql_str(negocio),
+                    nota=sql_str(d["nota_original"]),
+                    origen=sql_str(origen),
+                )
+            )
+        else:
+            # VES se convierte a USD con la tasa vigente al aplicar el seed:
+            # la planilla no trae una tasa historica por fila.
+            monto_usd = (
+                "{monto}".format(monto=sql_num(d["monto"]))
+                if d["moneda"] == "USD"
+                else "round({monto} / public.tasa_vigente(), 2)".format(
+                    monto=sql_num(d["monto"])
+                )
+            )
+            nota = "Importado de la planilla ({origen})".format(origen=origen)
+            confirmadas.append(
+                "insert into public.deuda_movimiento\n"
+                "  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)\n"
+                "select (select id from public.cliente where origen = {origen_cli}),\n"
+                "  {negocio}::unidad_negocio, 'deuda', {monto_usd}, public.tasa_vigente(),\n"
+                "  {nota}, (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)\n"
+                "where public.tasa_vigente() is not null\n"
+                "  and exists (select 1 from public.perfil where rol = 'dueno')\n"
+                "  and not exists (select 1 from public.deuda_movimiento where nota = {nota});".format(
+                    origen_cli=sql_str(_origen_cliente(d["cliente_id"])),
+                    negocio=sql_str(negocio),
+                    monto_usd=monto_usd,
+                    nota=sql_str(nota),
+                )
+            )
+
+    return "\n\n".join(confirmadas + por_revisar)
+
+
+def _origen_cliente(cliente_id_mock):
+    """mock/deudas.json referencia clientes por el id corto del mock
+    (`cli-013`); mock/clientes.json trae el `origen` real (celda del Excel),
+    que es la clave que sobrevive el seed (cliente.id es un uuid generado).
+    """
+    clientes = json.loads((MOCK / "clientes.json").read_text(encoding="utf-8"))
+    por_id = {c["id"]: c["origen"] for c in clientes}
+    return por_id[cliente_id_mock]
+
+
 def main():
     categorias = json.loads((MOCK / "categorias.json").read_text(encoding="utf-8"))
     productos = json.loads((MOCK / "productos.json").read_text(encoding="utf-8"))
     tasas = json.loads((MOCK / "tasa-cambio.json").read_text(encoding="utf-8"))
+    clientes = json.loads((MOCK / "clientes.json").read_text(encoding="utf-8"))
+    deudas = json.loads((MOCK / "deudas.json").read_text(encoding="utf-8"))
 
     partes = [
         "-- Seed, cargado por `npx supabase db reset` en local, o aplicado a un",
@@ -143,6 +231,17 @@ def main():
         "-- === 04-tasa-y-moneda ===",
         "",
         generar_tasa(tasas),
+        "",
+        "-- === 07-deudas-fiado ===",
+        "-- {n_cli} clientes, {n_deu} movimientos de deuda (ver mock/README.md).".format(
+            n_cli=len(clientes), n_deu=len(deudas)
+        ),
+        "-- Requiere que ya exista un dueno y una tasa registrada: en un",
+        "-- proyecto nuevo, aplicar despues del primer alta de usuario.",
+        "",
+        generar_clientes(clientes),
+        "",
+        generar_deudas(deudas),
         "",
     ]
     print("\n".join(partes))

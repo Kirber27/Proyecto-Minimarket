@@ -105,6 +105,9 @@ export type Database = {
       deuda_movimiento: {
         Row: {
           anulado: boolean
+          anulado_en: string | null
+          anulado_motivo: string | null
+          anulado_por: string | null
           cliente_id: string
           creado_en: string
           id: number
@@ -119,6 +122,9 @@ export type Database = {
         }
         Insert: {
           anulado?: boolean
+          anulado_en?: string | null
+          anulado_motivo?: string | null
+          anulado_por?: string | null
           cliente_id: string
           creado_en?: string
           id?: number
@@ -133,6 +139,9 @@ export type Database = {
         }
         Update: {
           anulado?: boolean
+          anulado_en?: string | null
+          anulado_motivo?: string | null
+          anulado_por?: string | null
           cliente_id?: string
           creado_en?: string
           id?: number
@@ -146,6 +155,13 @@ export type Database = {
           venta_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "deuda_movimiento_anulado_por_fkey"
+            columns: ["anulado_por"]
+            isOneToOne: false
+            referencedRelation: "perfil"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "deuda_movimiento_cliente_id_fkey"
             columns: ["cliente_id"]
@@ -173,6 +189,54 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "venta"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      deuda_por_revisar: {
+        Row: {
+          cliente_id: string
+          creado_en: string
+          id: number
+          monto_sugerido: number | null
+          nota_original: string
+          origen: string
+          resuelto: boolean
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+        }
+        Insert: {
+          cliente_id: string
+          creado_en?: string
+          id?: number
+          monto_sugerido?: number | null
+          nota_original: string
+          origen: string
+          resuelto?: boolean
+          unidad_negocio: Database["public"]["Enums"]["unidad_negocio"]
+        }
+        Update: {
+          cliente_id?: string
+          creado_en?: string
+          id?: number
+          monto_sugerido?: number | null
+          nota_original?: string
+          origen?: string
+          resuelto?: boolean
+          unidad_negocio?: Database["public"]["Enums"]["unidad_negocio"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deuda_por_revisar_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "cliente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deuda_por_revisar_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "cliente_saldo"
+            referencedColumns: ["cliente_id"]
           },
         ]
       }
@@ -686,6 +750,10 @@ export type Database = {
       }
     }
     Functions: {
+      anular_abono: {
+        Args: { p_motivo: string; p_movimiento_id: number }
+        Returns: undefined
+      }
       anular_venta: {
         Args: { p_motivo: string; p_venta_id: string }
         Returns: undefined
@@ -731,13 +799,33 @@ export type Database = {
         }
       }
       definir_pin: { Args: { p_pin: string }; Returns: undefined }
+      descartar_revision: { Args: { p_id: number }; Returns: undefined }
       normalizar: { Args: { t: string }; Returns: string }
+      registrar_abono: {
+        Args: {
+          p_cliente_id: string
+          p_metodo: Database["public"]["Enums"]["metodo_pago"]
+          p_monto: number
+          p_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          p_nota?: string
+        }
+        Returns: number
+      }
       registrar_deuda: {
         Args: {
           p_cliente_id: string
           p_monto: number
           p_tasa: number
           p_venta_id: string
+        }
+        Returns: number
+      }
+      registrar_deuda_manual: {
+        Args: {
+          p_cliente_id: string
+          p_monto: number
+          p_negocio: Database["public"]["Enums"]["unidad_negocio"]
+          p_nota?: string
         }
         Returns: number
       }
@@ -750,6 +838,10 @@ export type Database = {
           p_proveedor?: string
         }
         Returns: undefined
+      }
+      resolver_revision: {
+        Args: { p_id: number; p_monto: number }
+        Returns: number
       }
       rol_actual: {
         Args: never

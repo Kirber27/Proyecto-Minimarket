@@ -2,8 +2,10 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { useCatalogoStore } from '@/stores/catalogo'
+import { useSesionStore } from '@/stores/sesion'
 import * as ventasService from '@/services/ventasService'
 import * as inventarioService from '@/services/inventarioService'
+import * as clienteService from '@/services/clienteService'
 import { notificar } from '@/composables/useNotificaciones'
 import { ErrorDominio } from '@/lib/errorDominio'
 import { sumar, type Centavos } from '@/lib/money'
@@ -14,10 +16,12 @@ import PrecioDoble from '@/components/dominio/PrecioDoble.vue'
 import VentaDetalle from '@/pages/venta/VentaDetalle.vue'
 
 const catalogo = useCatalogoStore()
+const sesion = useSesionStore()
 const ventas = ref<Venta[]>([])
 const cargando = ref(true)
 const ventaAbierta = ref<Venta | null>(null)
 const cobertura = ref<ProductoCobertura[]>([])
+const pendientesRevision = ref(0)
 
 const ETIQUETAS_METODO: Record<string, string> = {
   'efectivo-ves': 'Efectivo Bs.',
@@ -50,9 +54,19 @@ async function cargarAlertas(): Promise<void> {
   }
 }
 
+async function cargarRevision(): Promise<void> {
+  if (!sesion.esDueno) return
+  try {
+    pendientesRevision.value = (await clienteService.listarPendientesRevision()).length
+  } catch {
+    // igual que las alertas: informativo, no bloquea el resto del Resumen
+  }
+}
+
 onMounted(() => {
   void cargar()
   void cargarAlertas()
+  void cargarRevision()
 })
 
 const totalDelDia = computed<Centavos>(() => sumar(...ventas.value.map(v => v.totalUsd)))
@@ -93,6 +107,20 @@ async function alAnular(): Promise<void> {
       <span class="mm-resumen__etiqueta">Vendido hoy</span>
       <PrecioDoble :usd="totalDelDia" tamano="lg" />
     </div>
+
+    <RouterLink
+      v-if="pendientesRevision > 0"
+      to="/deudas"
+      class="mm-resumen__alertas mm-resumen__alertas--revision"
+    >
+      <div class="mm-resumen__alertas-cabecera">
+        <span>
+          {{ pendientesRevision }} nota{{ pendientesRevision === 1 ? '' : 's' }} de la
+          planilla por revisar
+        </span>
+        <span class="mm-resumen__alertas-ver">Revisar</span>
+      </div>
+    </RouterLink>
 
     <RouterLink
       v-if="productosEnAlerta.length > 0"

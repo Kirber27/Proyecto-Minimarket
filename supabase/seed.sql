@@ -376,3 +376,154 @@ insert into public.tasa_cambio (valor, nota)
 select 800.0, 'seed inicial (BODEGA!G2)'
 where not exists (select 1 from public.tasa_cambio);
 
+-- === 07-deudas-fiado ===
+-- 42 clientes, 13 movimientos de deuda (ver mock/README.md).
+-- Requiere que ya exista un dueno y una tasa registrada: en un
+-- proyecto nuevo, aplicar despues del primer alta de usuario.
+
+insert into public.cliente (nombre, telefono, origen) values
+  ('Rada', null, 'DEUDAS 2026!B4'),
+  ('Erick', null, 'DEUDAS 2026!B5'),
+  ('Ismael', null, 'DEUDAS 2026!B6'),
+  ('Juan', null, 'DEUDAS 2026!B7'),
+  ('Jesus', null, 'DEUDAS 2026!B8'),
+  ('Luisber', null, 'DEUDAS 2026!B9'),
+  ('Zaiger', null, 'DEUDAS 2026!B10'),
+  ('Dubal', null, 'DEUDAS 2026!B11'),
+  ('Lester', null, 'DEUDAS 2026!B12'),
+  ('Wilifer', null, 'DEUDAS 2026!B13'),
+  ('Danne', null, 'DEUDAS 2026!B14'),
+  ('Larry', null, 'DEUDAS 2026!B15'),
+  ('Mayner', null, 'DEUDAS 2026!B16'),
+  ('Edi Lindo', null, 'DEUDAS 2026!B17'),
+  ('Rachel', null, 'DEUDAS 2026!B18'),
+  ('Juan', null, 'DEUDAS 2026!B19'),
+  ('Leismar', null, 'DEUDAS 2026!B20'),
+  ('Lorena', null, 'DEUDAS 2026!B21'),
+  ('Paola', null, 'DEUDAS 2026!B22'),
+  ('Sr. Fran', null, 'DEUDAS 2026!B23'),
+  ('Cheray', null, 'DEUDAS 2026!B25'),
+  ('Hubert', null, 'DEUDAS 2026!B26'),
+  ('Josefina', null, 'DEUDAS 2026!B27'),
+  ('Neiva', null, 'DEUDAS 2026!B28'),
+  ('Elbimar', null, 'DEUDAS 2026!B29'),
+  ('Pepino', null, 'DEUDAS 2026!B30'),
+  ('Hector', null, 'DEUDAS 2026!B31'),
+  ('Thony', null, 'DEUDAS 2026!B32'),
+  ('Thais', null, 'DEUDAS 2026!B33'),
+  ('Bernarda', null, 'DEUDAS 2026!B34'),
+  ('Frank', null, 'DEUDAS 2026!B35'),
+  ('Cipriano', null, 'DEUDAS 2026!B36'),
+  ('Pachi', null, 'DEUDAS 2026!B37'),
+  ('Jenry', null, 'DEUDAS 2026!B38'),
+  ('Elbimar', null, 'DEUDAS 2026!B39'),
+  ('Emerson', null, 'DEUDAS 2026!B40'),
+  ('Paola', null, 'DEUDAS 2026!B41'),
+  ('Flavia', null, 'DEUDAS 2026!B42'),
+  ('Patricia', null, 'DEUDAS 2026!B43'),
+  ('Frank', null, 'DEUDAS 2026!B44'),
+  ('Rosita', null, 'DEUDAS 2026!B45'),
+  ('Alexandra', null, 'DEUDAS 2026!B46')
+on conflict (origen) where origen is not null do update set
+  nombre = excluded.nombre,
+  telefono = excluded.telefono;
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B16'),
+  'bodega'::unidad_negocio, 'deuda', 15.0, public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!E16)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!E16)');
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B16'),
+  'cerveza'::unidad_negocio, 'deuda', round(1300.0 / public.tasa_vigente(), 2), public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!F16)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!F16)');
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B17'),
+  'bodega'::unidad_negocio, 'deuda', 18.0, public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!E17)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!E17)');
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B17'),
+  'cerveza'::unidad_negocio, 'deuda', round(382.0 / public.tasa_vigente(), 2), public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!F17)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!F17)');
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B27'),
+  'bodega'::unidad_negocio, 'deuda', round(7420.0 / public.tasa_vigente(), 2), public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!C27)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!C27)');
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B31'),
+  'bodega'::unidad_negocio, 'deuda', 11.0, public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!E31)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!E31)');
+
+insert into public.deuda_movimiento
+  (cliente_id, unidad_negocio, tipo, monto_usd, tasa_aplicada, nota, usuario_id)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B34'),
+  'bodega'::unidad_negocio, 'deuda', round(2800.0 / public.tasa_vigente(), 2), public.tasa_vigente(),
+  'Importado de la planilla (DEUDAS 2026!C34)', (select id from public.perfil where rol = 'dueno' order by creado_en limit 1)
+where public.tasa_vigente() is not null
+  and exists (select 1 from public.perfil where rol = 'dueno')
+  and not exists (select 1 from public.deuda_movimiento where nota = 'Importado de la planilla (DEUDAS 2026!C34)');
+
+insert into public.deuda_por_revisar
+  (cliente_id, unidad_negocio, nota_original, origen)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B5'),
+  'bodega'::unidad_negocio, '1,20+4', 'DEUDAS 2026!C5'
+on conflict (origen) do nothing;
+
+insert into public.deuda_por_revisar
+  (cliente_id, unidad_negocio, nota_original, origen)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B11'),
+  'bodega'::unidad_negocio, '1flip', 'DEUDAS 2026!C11'
+on conflict (origen) do nothing;
+
+insert into public.deuda_por_revisar
+  (cliente_id, unidad_negocio, nota_original, origen)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B12'),
+  'bodega'::unidad_negocio, '4,5+1,80+1,80+1refres pq+1,80+1refre pq+1,80+2+1,20+2,10+1,30+1flipgd+1chesse pq+3universal', 'DEUDAS 2026!C12'
+on conflict (origen) do nothing;
+
+insert into public.deuda_por_revisar
+  (cliente_id, unidad_negocio, nota_original, origen)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B31'),
+  'bodega'::unidad_negocio, '2JUSTY GD+4,60+2+2color+4+6,6+4,60+4,80+4,5+1,40', 'DEUDAS 2026!C31'
+on conflict (origen) do nothing;
+
+insert into public.deuda_por_revisar
+  (cliente_id, unidad_negocio, nota_original, origen)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B42'),
+  'bodega'::unidad_negocio, '2harina trigo+1flip', 'DEUDAS 2026!C42'
+on conflict (origen) do nothing;
+
+insert into public.deuda_por_revisar
+  (cliente_id, unidad_negocio, nota_original, origen)
+select (select id from public.cliente where origen = 'DEUDAS 2026!B43'),
+  'bodega'::unidad_negocio, '1azucarada+2papas lays', 'DEUDAS 2026!C43'
+on conflict (origen) do nothing;
+

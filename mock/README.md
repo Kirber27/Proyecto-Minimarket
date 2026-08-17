@@ -40,12 +40,18 @@ categorías sino marcas de mes (`ENERO` en `BODEGA`, `AGOSTO` en `CHUCHERIA`), y
 un bloque de 42 productos de limpieza e higiene no tenía título. El mapeo está en
 `CAT_MAP` dentro del script.
 
-**Las deudas no se interpretaron.** De los 42 clientes, 13 tienen algo anotado, y
-en 11 casos es texto libre (`"4,5+1,80+1refres pq"`). Todos entran con
-`monto: null`, `requiere_revision: true` y la `nota_original` intacta. Los dos
-casos numéricos (`7420`, `2800`) también, porque no consta si son bolívares o
-dólares — a la tasa de 800 la diferencia es de tres órdenes de magnitud. Ver el
-requisito 5 del [spec 07](../.claude/specs/07-deudas-fiado/requirements.md).
+**Las deudas de texto libre no se interpretaron.** De los 42 clientes, 13 tienen
+algo anotado en la planilla. En 6 casos es texto libre (`"4,5+1,80+1refres pq"`):
+esos entran con `monto: null`, `requiere_revision: true` y la `nota_original`
+intacta — adivinar un total ahí es peor que preguntar. Ver el requisito 5 del
+[spec 07](../.claude/specs/07-deudas-fiado/requirements.md).
+
+Los otros 7 son números simples, y **la columna de origen ya resuelve la
+moneda**: `DEUDAS 2026` tiene una columna por moneda/unidad de negocio (`C` =
+bodega en Bs., `E` = bodega en USD, `F` = cerveza en Bs., `G` = thais en USD),
+así que un monto en columna `C` es bolívares sin ambigüedad, no un número suelto
+que haya que interpretar. Esos 7 entran directo como `deuda_movimiento` con
+`moneda` explícita; no pasan por la bandeja de revisión.
 
 **Hay un error de fórmula en la planilla.** `CHUCHERIA!F13` (`MARILU TUBO`) dice
 `1,5` cuando debería dar `1,6 × 800 = 1280`. El script detecta la discrepancia,
