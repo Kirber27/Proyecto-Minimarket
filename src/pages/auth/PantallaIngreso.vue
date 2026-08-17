@@ -72,8 +72,8 @@ async function ingresarConPassword(): Promise<void> {
   <div class="mm-ingreso">
     <div class="mm-ingreso__tarjeta">
       <div class="mm-ingreso__marca-panel">
-        <span class="mm-ingreso__avatar" aria-hidden="true">M</span>
-        <h1 class="mm-ingreso__marca-titulo">Minimarket</h1>
+        <span class="mm-ingreso__avatar" aria-hidden="true">K</span>
+        <h1 class="mm-ingreso__marca-titulo">Tu Kiosko</h1>
         <p class="mm-ingreso__marca-subtitulo">
           Ventas, inventario y caja del local en un solo lugar.
         </p>

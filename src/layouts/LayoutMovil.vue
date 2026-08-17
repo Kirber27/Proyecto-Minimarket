@@ -37,9 +37,9 @@ const conteoAlertas = computed(() => {
     <header class="mm-layout-movil__cabecera">
       <div class="mm-layout-movil__fila-superior">
         <div class="mm-layout-movil__marca">
-          <span class="mm-layout-movil__avatar" aria-hidden="true">M</span>
+          <span class="mm-layout-movil__avatar" aria-hidden="true">K</span>
           <div class="mm-layout-movil__titulos">
-            <p class="mm-layout-movil__etiqueta-marca">Minimarket</p>
+            <p class="mm-layout-movil__etiqueta-marca">Tu Kiosko</p>
             <h1 class="mm-layout-movil__titulo">{{ route.meta.titulo }}</h1>
           </div>
         </div>

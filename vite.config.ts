@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['fonts/*.woff2'],
       manifest: {
-        name: 'Minimarket',
-        short_name: 'Minimarket',
+        name: 'Tu Kiosko',
+        short_name: 'Tu Kiosko',
         description: 'Gestion de ventas, inventario y caja para minimarket',
         lang: 'es-VE',
         theme_color: '#F1F2F4',

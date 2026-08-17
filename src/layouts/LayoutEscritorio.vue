@@ -50,9 +50,9 @@ async function cerrarSesion(): Promise<void> {
   <div class="mm-layout-escritorio">
     <aside class="mm-layout-escritorio__barra">
       <div class="mm-layout-escritorio__marca">
-        <span class="mm-layout-escritorio__avatar" aria-hidden="true">M</span>
+        <span class="mm-layout-escritorio__avatar" aria-hidden="true">K</span>
         <div class="mm-layout-escritorio__marca-texto">
-          <p class="mm-layout-escritorio__marca-nombre">Minimarket</p>
+          <p class="mm-layout-escritorio__marca-nombre">Tu Kiosko</p>
           <p class="mm-layout-escritorio__marca-sub">Gestión interna</p>
         </div>
       </div>
