@@ -135,19 +135,17 @@ async function alCambiar(): Promise<void> {
       </div>
     </div>
 
-    <div class="mm-inventario__barra-superior">
+    <div
+      class="mm-inventario__filtros"
+      :class="{ 'mm-inventario__filtros--sin-ajustar': !sesion.esDueno }"
+    >
       <CampoTexto
         v-model="textoBusqueda"
         etiqueta="Buscar"
         placeholder="Nombre o SKU"
         class="mm-inventario__buscador"
       />
-      <BotonPrimario v-if="sesion.esDueno" @click="mostrandoAjuste = true"
-        >Ajustar stock</BotonPrimario
-      >
-    </div>
 
-    <div class="mm-inventario__filtros">
       <div class="mm-inventario__chips">
         <ChipFiltro
           :activo="categoriaFiltro === 'todas'"
@@ -165,10 +163,18 @@ async function alCambiar(): Promise<void> {
         </ChipFiltro>
       </div>
 
+      <BotonPrimario
+        v-if="sesion.esDueno"
+        class="mm-inventario__ajustar"
+        @click="mostrandoAjuste = true"
+      >
+        Ajustar stock
+      </BotonPrimario>
+
       <div class="mm-inventario__orden" role="group" aria-label="Ordenar por">
         <button
           type="button"
-          class="mm-inventario__boton-orden"
+          class="mm-inventario__boton-orden mm-inventario__boton-orden--stock"
           :class="{ 'mm-inventario__boton-orden--activo': orden === 'stock' }"
           @click="orden = 'stock'"
         >
@@ -176,11 +182,12 @@ async function alCambiar(): Promise<void> {
         </button>
         <button
           type="button"
-          class="mm-inventario__boton-orden"
+          class="mm-inventario__boton-orden mm-inventario__boton-orden--nombre"
           :class="{ 'mm-inventario__boton-orden--activo': orden === 'nombre' }"
+          aria-label="Ordenar alfabéticamente"
           @click="orden = 'nombre'"
         >
-          Nombre
+          A-Z
         </button>
       </div>
     </div>
@@ -305,6 +312,7 @@ async function alCambiar(): Promise<void> {
 
 <style scoped lang="scss">
 @use '@/assets/scss/variables' as v;
+@use '@/assets/scss/mixins' as m;
 
 .mm-inventario__cabecera-valor {
   display: flex;
@@ -337,40 +345,55 @@ async function alCambiar(): Promise<void> {
   color: v.$tenue;
 }
 
-.mm-inventario__barra-superior {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
+// Movil: buscador y categorias a lo ancho completo (cada uno en su propia
+// fila), y en la ultima fila "Ajustar stock" + los dos botones de orden
+// reparten el espacio en 3 partes iguales, en vez de amontonarse en dos
+// filas apretadas como antes. La grilla es de 6 columnas (no 3) para poder
+// repartir esa ultima fila en tercios (con "Ajustar stock", solo dueno) o
+// en mitades (sin ese boton, mostrador) sin dejar una celda vacia.
+.mm-inventario__filtros {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-areas:
+    'buscador buscador buscador buscador buscador buscador'
+    'chips chips chips chips chips chips'
+    'ajustar ajustar stockbtn stockbtn nombrebtn nombrebtn';
+  align-items: center;
+  gap: 10px;
   margin-bottom: 16px;
+
+  &--sin-ajustar {
+    grid-template-areas:
+      'buscador buscador buscador buscador buscador buscador'
+      'chips chips chips chips chips chips'
+      'stockbtn stockbtn stockbtn nombrebtn nombrebtn nombrebtn';
+  }
 }
 
 .mm-inventario__buscador {
-  flex: 1;
-}
-
-.mm-inventario__filtros {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  overflow-x: auto;
+  grid-area: buscador;
 }
 
 .mm-inventario__chips {
+  grid-area: chips;
   display: flex;
   gap: 8px;
   overflow-x: auto;
 }
 
+.mm-inventario__ajustar {
+  grid-area: ajustar;
+}
+
+// display:contents saca al wrapper del layout (sus hijos pasan a ser items
+// directos del grid de arriba) pero conserva el role="group" para lectores
+// de pantalla.
 .mm-inventario__orden {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
+  display: contents;
 }
 
 .mm-inventario__boton-orden {
-  min-height: 32px;
+  min-height: v.$objetivo-tactil-min;
   padding: 0 12px;
   border: 1px solid v.$borde;
   border-radius: v.$radio-sm;
@@ -379,10 +402,39 @@ async function alCambiar(): Promise<void> {
   font-size: v.$tam-etiqueta;
   cursor: pointer;
 
+  &--stock {
+    grid-area: stockbtn;
+  }
+
+  &--nombre {
+    grid-area: nombrebtn;
+  }
+
   &--activo {
     background-color: v.$tinta;
     color: white;
     border-color: v.$tinta;
+  }
+}
+
+// Escritorio: dos filas (buscador+ajustar arriba, categorias+orden abajo),
+// que es como se veia antes de comprimir todo a una sola fila en movil.
+@include m.desde-escritorio {
+  .mm-inventario__filtros {
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas:
+      'buscador buscador ajustar'
+      'chips stockbtn nombrebtn';
+
+    &--sin-ajustar {
+      grid-template-areas:
+        'buscador buscador buscador'
+        'chips stockbtn nombrebtn';
+    }
+  }
+
+  .mm-inventario__boton-orden {
+    min-height: 32px;
   }
 }
 

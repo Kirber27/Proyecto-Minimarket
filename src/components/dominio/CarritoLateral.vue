@@ -65,7 +65,7 @@ async function confirmarVenta(): Promise<void> {
               class="mm-carrito-lateral__vaciar"
               @click="pedirVaciar"
             >
-              Vaciar
+              Limpiar
             </button>
             <button
               type="button"

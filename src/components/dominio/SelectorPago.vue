@@ -80,6 +80,8 @@ function faltaOVuelto(): Centavos {
 
 <template>
   <div class="mm-selector-pago">
+    <p class="mm-selector-pago__titulo">Escoge 1 o 2 métodos de pago para continuar:</p>
+
     <div class="mm-selector-pago__metodos">
       <button
         v-for="metodo in METODOS"
@@ -175,6 +177,13 @@ function faltaOVuelto(): Centavos {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.mm-selector-pago__titulo {
+  margin: 0;
+  font-size: v.$tam-etiqueta;
+  font-weight: v.$peso-semi;
+  color: v.$tenue;
 }
 
 .mm-selector-pago__metodos {

@@ -73,19 +73,25 @@ function alGuardar(): void {
 
 <template>
   <div class="mm-productos">
-    <div class="mm-productos__barra-superior">
+    <div
+      class="mm-productos__filtros"
+      :class="{ 'mm-productos__filtros--sin-ajustar': !sesion.esDueno }"
+    >
+      <BotonPrimario
+        v-if="sesion.esDueno"
+        class="mm-productos__ajustar"
+        @click="abrirNuevo"
+      >
+        Nuevo producto
+      </BotonPrimario>
+
       <CampoTexto
         v-model="textoBusqueda"
         etiqueta="Buscar"
         placeholder="Nombre, SKU o categoría"
         class="mm-productos__buscador"
       />
-      <BotonPrimario v-if="sesion.esDueno" @click="abrirNuevo"
-        >Nuevo producto</BotonPrimario
-      >
-    </div>
 
-    <div class="mm-productos__filtros">
       <div class="mm-productos__chips">
         <ChipFiltro
           :activo="categoriaFiltro === 'todas'"
@@ -106,19 +112,20 @@ function alGuardar(): void {
       <div class="mm-productos__orden" role="group" aria-label="Ordenar por">
         <button
           type="button"
-          class="mm-productos__boton-orden"
-          :class="{ 'mm-productos__boton-orden--activo': orden === 'nombre' }"
-          @click="orden = 'nombre'"
-        >
-          Nombre
-        </button>
-        <button
-          type="button"
-          class="mm-productos__boton-orden"
+          class="mm-productos__boton-orden mm-productos__boton-orden--stock"
           :class="{ 'mm-productos__boton-orden--activo': orden === 'stock' }"
           @click="orden = 'stock'"
         >
           Stock
+        </button>
+        <button
+          type="button"
+          class="mm-productos__boton-orden mm-productos__boton-orden--nombre"
+          :class="{ 'mm-productos__boton-orden--activo': orden === 'nombre' }"
+          aria-label="Ordenar alfabéticamente"
+          @click="orden = 'nombre'"
+        >
+          A-Z
         </button>
       </div>
     </div>
@@ -231,41 +238,55 @@ function alGuardar(): void {
 
 <style scoped lang="scss">
 @use '@/assets/scss/variables' as v;
+@use '@/assets/scss/mixins' as m;
 
-.mm-productos__barra-superior {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
+// Movil: "Nuevo producto" arriba del todo a lo ancho completo, luego
+// buscador y categorias (cada uno en su propia fila), y al final Stock/A-Z
+// a la mitad cada uno.
+.mm-productos__filtros {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-areas:
+    'ajustar ajustar'
+    'buscador buscador'
+    'chips chips'
+    'stockbtn nombrebtn';
+  align-items: center;
+  gap: 10px;
   margin-bottom: 16px;
+
+  &--sin-ajustar {
+    grid-template-areas:
+      'buscador buscador'
+      'chips chips'
+      'stockbtn nombrebtn';
+  }
 }
 
 .mm-productos__buscador {
-  flex: 1;
-}
-
-.mm-productos__filtros {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  overflow-x: auto;
+  grid-area: buscador;
 }
 
 .mm-productos__chips {
+  grid-area: chips;
   display: flex;
   gap: 8px;
   overflow-x: auto;
 }
 
+.mm-productos__ajustar {
+  grid-area: ajustar;
+}
+
+// display:contents saca al wrapper del layout (sus hijos pasan a ser items
+// directos del grid de arriba) pero conserva el role="group" para lectores
+// de pantalla.
 .mm-productos__orden {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
+  display: contents;
 }
 
 .mm-productos__boton-orden {
-  min-height: 32px;
+  min-height: v.$objetivo-tactil-min;
   padding: 0 12px;
   border: 1px solid v.$borde;
   border-radius: v.$radio-sm;
@@ -274,10 +295,39 @@ function alGuardar(): void {
   font-size: v.$tam-etiqueta;
   cursor: pointer;
 
+  &--stock {
+    grid-area: stockbtn;
+  }
+
+  &--nombre {
+    grid-area: nombrebtn;
+  }
+
   &--activo {
     background-color: v.$tinta;
     color: white;
     border-color: v.$tinta;
+  }
+}
+
+// Escritorio: dos filas (buscador+nuevo arriba, categorias+orden abajo),
+// que es como se veia antes de comprimir todo a una sola fila en movil.
+@include m.desde-escritorio {
+  .mm-productos__filtros {
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas:
+      'buscador buscador ajustar'
+      'chips stockbtn nombrebtn';
+
+    &--sin-ajustar {
+      grid-template-areas:
+        'buscador buscador buscador'
+        'chips stockbtn nombrebtn';
+    }
+  }
+
+  .mm-productos__boton-orden {
+    min-height: 32px;
   }
 }
 

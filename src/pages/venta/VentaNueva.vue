@@ -57,7 +57,12 @@ function alConfirmar(venta: Venta): void {
     </div>
 
     <div class="mm-venta__buscador">
-      <CampoTexto v-model="textoBusqueda" etiqueta="Buscar" placeholder="Nombre o SKU" />
+      <h2 class="mm-venta__titulo-filtros">Filtros de búsqueda</h2>
+      <CampoTexto
+        v-model="textoBusqueda"
+        etiqueta="Busca acá tu producto"
+        placeholder="Nombre o SKU"
+      />
     </div>
 
     <div class="mm-venta__chips">
@@ -144,6 +149,15 @@ function alConfirmar(venta: Venta): void {
 
 .mm-venta__buscador {
   margin-bottom: 12px;
+}
+
+.mm-venta__titulo-filtros {
+  margin: 0 0 8px;
+  font-size: v.$tam-etiqueta;
+  font-weight: v.$peso-negrita;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: v.$tenue;
 }
 
 .mm-venta__chips {
