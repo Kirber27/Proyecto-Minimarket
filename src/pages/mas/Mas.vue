@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { useSesionStore } from '@/stores/sesion'
+import { tieneModoPinDisponible } from '@/composables/useDispositivo'
+import BotonSecundario from '@/components/ui/BotonSecundario.vue'
 
 const sesion = useSesionStore()
+const router = useRouter()
 
 const todosLosDestinos = [
   { ruta: '/productos', etiqueta: 'Productos', soloDueno: true },
@@ -19,6 +23,22 @@ const todosLosDestinos = [
 const destinos = computed(() =>
   todosLosDestinos.filter(d => !d.soloDueno || sesion.esDueno),
 )
+
+// El sidebar de escritorio tiene su propio pie con "Salir"; en movil no hay
+// donde ponerlo, asi que vive aqui, al fondo de "Mas" (unico lugar comun a
+// toda la barra inferior). "Bloquear" solo aparece si ya hay un PIN
+// definido en este dispositivo, mismo criterio que Ajustes.vue.
+const pinListo = ref(tieneModoPinDisponible())
+
+async function bloquear(): Promise<void> {
+  sesion.bloquear()
+  await router.replace('/bloqueado')
+}
+
+async function cerrarSesion(): Promise<void> {
+  await sesion.cerrar()
+  await router.replace('/ingresar')
+}
 </script>
 
 <template>
@@ -30,6 +50,15 @@ const destinos = computed(() =>
         </RouterLink>
       </li>
     </ul>
+
+    <div class="mm-lista-mas__pie">
+      <BotonSecundario class="mm-lista-mas__boton" @click="cerrarSesion">
+        Cerrar sesión
+      </BotonSecundario>
+      <BotonSecundario v-if="pinListo" class="mm-lista-mas__boton" @click="bloquear">
+        Bloquear
+      </BotonSecundario>
+    </div>
   </div>
 </template>
 
@@ -41,5 +70,17 @@ const destinos = computed(() =>
   text-decoration: none;
   border-bottom: 1px solid var(--mm-borde);
   min-height: 44px;
+}
+
+.mm-lista-mas__pie {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--mm-borde);
+}
+
+.mm-lista-mas__boton {
+  flex: 1;
 }
 </style>

@@ -184,6 +184,33 @@ async function cerrarSesion(): Promise<void> {
     </section>
 
     <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
+      <h2 class="mm-ajustes__titulo">Tasa de cambio</h2>
+      <p class="mm-ajustes__ayuda">
+        Valor de referencia para convertir dólares a bolívares en toda la app. Cambia
+        seguido, así que actualízala aquí cuando corresponda.
+      </p>
+
+      <p v-if="tasa.disponible" class="mm-ajustes__tasa-actual">
+        Vigente: 1 USD = {{ formatearBs(tasa.valor!) }}
+        <span class="mm-ajustes__tasa-fecha">
+          desde {{ formatearFechaHora(new Date(tasa.vigente!.vigenteDesde)) }}
+        </span>
+      </p>
+      <p v-else class="mm-ajustes__tasa-vacia">Todavía no hay una tasa registrada.</p>
+
+      <CampoNumero
+        v-model="tasaNueva"
+        etiqueta="Nueva tasa (Bs. por USD)"
+        :step="0.01"
+        :min="0"
+      />
+      <p v-if="errorTasa" class="mm-ajustes__error" role="alert">{{ errorTasa }}</p>
+      <BotonSecundario :cargando="guardandoTasa" @click="guardarTasa">
+        Actualizar tasa
+      </BotonSecundario>
+    </section>
+
+    <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
       <h2 class="mm-ajustes__titulo">Usuarios</h2>
       <p class="mm-ajustes__ayuda">Cuentas del dueño y del mostrador.</p>
       <RouterLink to="/usuarios" class="mm-ajustes__enlace"
@@ -209,33 +236,6 @@ async function cerrarSesion(): Promise<void> {
           {{ d.sumaMovimientos }}
         </li>
       </ul>
-    </section>
-
-    <section v-if="sesion.esDueno" class="mm-ajustes__seccion">
-      <h2 class="mm-ajustes__titulo">Tasa de cambio</h2>
-      <p class="mm-ajustes__ayuda">
-        Valor de referencia para convertir dólares a bolívares en toda la app. Cambia
-        seguido, así que actualízala aquí cuando corresponda.
-      </p>
-
-      <p v-if="tasa.disponible" class="mm-ajustes__tasa-actual">
-        Vigente: 1 USD = {{ formatearBs(tasa.valor!) }}
-        <span class="mm-ajustes__tasa-fecha">
-          desde {{ formatearFechaHora(new Date(tasa.vigente!.vigenteDesde)) }}
-        </span>
-      </p>
-      <p v-else class="mm-ajustes__tasa-vacia">Todavía no hay una tasa registrada.</p>
-
-      <CampoNumero
-        v-model="tasaNueva"
-        etiqueta="Nueva tasa (Bs. por USD)"
-        :step="0.01"
-        :min="0"
-      />
-      <p v-if="errorTasa" class="mm-ajustes__error" role="alert">{{ errorTasa }}</p>
-      <BotonSecundario :cargando="guardandoTasa" @click="guardarTasa">
-        Actualizar tasa
-      </BotonSecundario>
     </section>
 
     <section v-if="sesion.esDueno" class="mm-ajustes__seccion">

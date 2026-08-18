@@ -236,7 +236,11 @@ function formatearMargen(valor: number): string {
 
 .mm-form-producto__fila {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  // minmax(0, 1fr), no 1fr a secas: sin el minimo en 0, el track no se
+  // encoge mas alla del ancho intrinseco del <input>/<select> que
+  // contiene, y en el modal movil (mas angosto que ese minimo) el grid se
+  // desborda del panel en vez de repartir el espacio disponible.
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
 }
 

@@ -9,10 +9,10 @@ import type { Categoria } from '@/types/dominio'
 import BotonPrimario from '@/components/ui/BotonPrimario.vue'
 import BotonSecundario from '@/components/ui/BotonSecundario.vue'
 import CampoTexto from '@/components/ui/CampoTexto.vue'
-import ChipCategoria from '@/components/dominio/ChipCategoria.vue'
 import CajaIniciales from '@/components/dominio/CajaIniciales.vue'
 import ModalBase from '@/components/ui/ModalBase.vue'
 import EstadoVacio from '@/components/ui/EstadoVacio.vue'
+import Icono from '@/components/ui/Icono.vue'
 
 const catalogo = useCatalogoStore()
 const conteos = ref<Record<string, number>>({})
@@ -23,7 +23,7 @@ const nombreNuevo = ref('')
 const errorNuevo = ref('')
 const guardandoNuevo = ref(false)
 
-const editandoId = ref<string | null>(null)
+const editando = ref<Categoria | null>(null)
 const nombreEditado = ref('')
 const errorEdicion = ref('')
 
@@ -83,21 +83,25 @@ async function crearCategoria(): Promise<void> {
 }
 
 function empezarEdicion(categoria: Categoria): void {
-  editandoId.value = categoria.id
+  editando.value = categoria
   nombreEditado.value = categoria.nombre
   errorEdicion.value = ''
 }
 
-async function guardarEdicion(categoria: Categoria): Promise<void> {
+async function guardarEdicion(): Promise<void> {
+  if (!editando.value) return
   errorEdicion.value = ''
   if (!nombreEditado.value.trim()) {
     errorEdicion.value = 'El nombre no puede quedar vacío.'
     return
   }
   try {
-    await catalogoService.renombrarCategoria(categoria.id, nombreEditado.value.trim())
-    categoria.nombre = nombreEditado.value.trim()
-    editandoId.value = null
+    await catalogoService.renombrarCategoria(
+      editando.value.id,
+      nombreEditado.value.trim(),
+    )
+    editando.value.nombre = nombreEditado.value.trim()
+    editando.value = null
   } catch (err) {
     errorEdicion.value =
       err instanceof ErrorDominio ? err.message : 'No se pudo renombrar la categoría.'
@@ -174,37 +178,37 @@ async function confirmarReasignacion(): Promise<void> {
           <CajaIniciales
             :nombre="categoria.nombre"
             :matiz="categoria.matiz"
-            :tamano="34"
+            :tamano="40"
           />
-          <ChipCategoria :nombre="categoria.nombre" :matiz="categoria.matiz" />
-
-          <CampoTexto
-            v-if="editandoId === categoria.id"
-            v-model="nombreEditado"
-            etiqueta="Nombre"
-            :error="errorEdicion"
-          />
-          <template v-else>
-            <span class="mm-categorias__conteo">
+          <div class="mm-categorias__texto">
+            <span class="mm-categorias__nombre">{{ categoria.nombre }}</span>
+            <span class="mm-categorias__meta">
               {{ conteos[categoria.id] ?? 0 }} producto(s)
+              <span v-if="!categoria.activo" class="mm-categorias__inactiva"
+                >· Inactiva</span
+              >
             </span>
-            <span v-if="!categoria.activo" class="mm-categorias__inactiva">Inactiva</span>
-          </template>
+          </div>
         </div>
 
         <div class="mm-categorias__acciones">
-          <template v-if="editandoId === categoria.id">
-            <BotonSecundario @click="guardarEdicion(categoria)">Guardar</BotonSecundario>
-            <BotonSecundario @click="editandoId = null">Cancelar</BotonSecundario>
-          </template>
-          <template v-else>
-            <BotonSecundario @click="empezarEdicion(categoria)"
-              >Renombrar</BotonSecundario
-            >
-            <BotonSecundario v-if="categoria.activo" @click="pedirDesactivar(categoria)">
-              Desactivar
-            </BotonSecundario>
-          </template>
+          <button
+            type="button"
+            class="mm-categorias__icono-boton"
+            :aria-label="`Renombrar ${categoria.nombre}`"
+            @click="empezarEdicion(categoria)"
+          >
+            <Icono nombre="editar" :tamano="17" />
+          </button>
+          <button
+            v-if="categoria.activo"
+            type="button"
+            class="mm-categorias__icono-boton mm-categorias__icono-boton--peligro"
+            :aria-label="`Desactivar ${categoria.nombre}`"
+            @click="pedirDesactivar(categoria)"
+          >
+            <Icono nombre="desactivar" :tamano="17" />
+          </button>
         </div>
       </li>
     </ul>
@@ -217,6 +221,18 @@ async function confirmarReasignacion(): Promise<void> {
       <form class="mm-categorias__form" @submit.prevent="crearCategoria">
         <CampoTexto v-model="nombreNuevo" etiqueta="Nombre" :error="errorNuevo" />
         <BotonPrimario type="submit" :cargando="guardandoNuevo">Crear</BotonPrimario>
+      </form>
+    </ModalBase>
+
+    <ModalBase v-if="editando" titulo="Renombrar categoría" @cerrar="editando = null">
+      <form class="mm-categorias__form" @submit.prevent="guardarEdicion">
+        <CampoTexto v-model="nombreEditado" etiqueta="Nombre" :error="errorEdicion" />
+        <div class="mm-categorias__form-acciones">
+          <BotonPrimario type="submit">Guardar</BotonPrimario>
+          <BotonSecundario type="button" @click="editando = null"
+            >Cancelar</BotonSecundario
+          >
+        </div>
       </form>
     </ModalBase>
 
@@ -285,10 +301,29 @@ async function confirmarReasignacion(): Promise<void> {
 .mm-categorias__info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
-  flex-wrap: wrap;
+}
+
+.mm-categorias__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mm-categorias__nombre {
+  font-weight: v.$peso-semi;
+  color: v.$tinta;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mm-categorias__meta {
+  font-size: v.$tam-etiqueta;
+  color: v.$tenue;
 }
 
 .mm-categorias__acciones {
@@ -301,21 +336,46 @@ async function confirmarReasignacion(): Promise<void> {
   flex-shrink: 0;
 }
 
-.mm-categorias__conteo {
-  color: v.$tenue;
-  font-size: v.$tam-etiqueta;
-}
-
 .mm-categorias__inactiva {
   color: v.$error;
-  font-size: v.$tam-etiqueta;
   font-weight: v.$peso-semi;
+}
+
+.mm-categorias__icono-boton {
+  flex-shrink: 0;
+  width: v.$objetivo-tactil-min;
+  height: v.$objetivo-tactil-min;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: v.$radio-sm;
+  border: 1px solid v.$borde;
+  background-color: v.$superficie;
+  color: v.$acento-hover;
+  cursor: pointer;
+
+  &:hover {
+    background-color: v.$acento-suave;
+  }
+
+  &--peligro {
+    color: v.$error;
+
+    &:hover {
+      background-color: v.$error-bg;
+    }
+  }
 }
 
 .mm-categorias__form {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.mm-categorias__form-acciones {
+  display: flex;
+  gap: 10px;
 }
 
 .mm-categorias__ayuda {

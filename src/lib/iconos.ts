@@ -29,6 +29,9 @@ export const RUTAS_ICONO = {
   atras: '<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>',
   salir:
     '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+  editar: '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>',
+  desactivar:
+    '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>',
 } as const
 
 export type NombreIcono = keyof typeof RUTAS_ICONO
